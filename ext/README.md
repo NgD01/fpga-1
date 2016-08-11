@@ -1,0 +1,5 @@
+All files in this area are checked-out or copied from external sources.
+
+    cd ext/
+    git submodule add https://github.com/pConst/basic_verilog
+    svn co http://opencores.org/ocsvn/light8080/light8080/trunk light8080
