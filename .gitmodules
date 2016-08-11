@@ -1,0 +1,3 @@
+[submodule "ext/basic_verilog"]
+	path = ext/basic_verilog
+	url = https://github.com/pConst/basic_verilog
