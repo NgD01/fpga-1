@@ -6,15 +6,13 @@ module top (
 );
 
 wire tick, baud;
-
 Tick1hz U1(.clk(clk), .tick(tick));
-
 BaudGen U2(.clk(clk), .baud(baud));
 
 UartTx U3(
     .clk(clk),
     .tx_do_sample(baud),
-    .tx_data(8`h45), // "E"
+    .tx_data(8'h45), // "E"
     .tx_start(tick),
     .txd(txd)
 );
