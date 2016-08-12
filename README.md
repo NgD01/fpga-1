@@ -1,5 +1,7 @@
 ### Dabbling in the world of FPGAs
 
+[fourHex](quartus/fourHex/) :
+Display "1234" on the multiplexed 7-segment display - cy4easy  
 [grayLeds](quartus/grayLeds/) :
 Count in Gray code on the eight built-in LEDs - cy4mini  
 [tinyUart](quartus/tinyUart/) :
