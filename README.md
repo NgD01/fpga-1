@@ -1,5 +1,7 @@
 ### Dabbling in the world of FPGAs
 
+[lite8080](quartus/lite8080/) :
+A microcoded 8080 core running a Small-C demo - cystarter  
 [fourHex](quartus/fourHex/) :
 Display "1234" on the multiplexed 7-segment display - cy4easy  
 [grayLeds](quartus/grayLeds/) :

@@ -6,5 +6,5 @@ includes code for Altera's [Advanced Synthesis Cookbook](https://www.altera.com/
 as well as [PicoBlaze](https://en.wikipedia.org/wiki/PicoBlaze) and [PacoBlaze](http://bleyer.org/pacoblaze/)
 
 **Small 8080 soft core with microcode**  
-`svn co http://opencores.org/ocsvn/light8080/light8080/trunk light8080`  
+`git submodule add https://github.com/jblang/light8080`  
 see <http://opencores.org/project,light8080>

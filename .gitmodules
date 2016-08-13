@@ -1,3 +1,6 @@
 [submodule "ext/basic_verilog"]
 	path = ext/basic_verilog
 	url = https://github.com/pConst/basic_verilog
+[submodule "ext/light8080"]
+	path = ext/light8080
+	url = https://github.com/jblang/light8080
