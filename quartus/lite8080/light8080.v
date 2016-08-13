@@ -60,13 +60,13 @@
 
 module light8080 
 (  
-	clk, reset, 
-	addr_out, vma, 
-	io, rd, 
-	wr, fetch, 
-	data_in, data_out, 
-	inta, inte, 
-	halt, intr 
+    clk, reset, 
+    addr_out, vma, 
+    io, rd, 
+    wr, fetch, 
+    data_in, data_out, 
+    inta, inte, 
+    halt, intr 
 );
 
 //---------------------------------------------------------------------------------------
@@ -115,23 +115,23 @@ module light8080
 
 //---------------------------------------------------------------------------------------
 // module interfaces 
-input			clk;
-input			reset; 
+input           clk;
+input           reset; 
 
-output	[15:0]	addr_out;
-output			vma;
-output			io;
-output			rd;
-output			wr;
-output			fetch;
+output  [15:0]  addr_out;
+output          vma;
+output          io;
+output          rd;
+output          wr;
+output          fetch;
 
-input	[7:0]	data_in;
-output	[7:0]	data_out;
+input   [7:0]   data_in;
+output  [7:0]   data_out;
 
-output			inta;
-output			inte;
-output			halt;
-input			intr;
+output          inta;
+output          inte;
+output          halt;
+input           intr;
 
 //---------------------------------------------------------------------------------------
 // internal signals 
@@ -146,7 +146,7 @@ wire [2:0] d_field;
 // p_field: IR field, pp 16-bit reg pair code
 wire [1:0] p_field;
 // rbh: 1 when p_field=11, used in reg bank addressing for 'special' regs
-wire rbh; 				// 1 when P=11 (special case)  
+wire rbh;               // 1 when P=11 (special case)  
 // alu_op: uinst field, ALU operation code 
 wire [3:0] alu_op; 
 // uc_addr: microcode (ucode) address 
@@ -169,56 +169,56 @@ wire [2:0] uc_flags2;
 // uc_addr_sel: selection of next uc_addr, composition of 4 flags
 wire [3:0] uc_addr_sel;
 // NOTE: see microcode file for information on flags
-wire uc_jsr;  		// uinst field, decoded 'jsr' flag
-wire uc_tjsr;  		// uinst field, decoded 'tjsr' flag
-wire uc_decode;		// uinst field, decoded 'decode' flag
-wire uc_end;		// uinst field, decoded 'end' flag
-reg condition_reg;	// registered tjst condition
+wire uc_jsr;        // uinst field, decoded 'jsr' flag
+wire uc_tjsr;       // uinst field, decoded 'tjsr' flag
+wire uc_decode;     // uinst field, decoded 'decode' flag
+wire uc_end;        // uinst field, decoded 'end' flag
+reg condition_reg;  // registered tjst condition
 // condition: tjsr condition (computed ccc condition from '80 instructions)
 reg condition; 
 // condition_sel: IR field, ccc condition code
-wire uc_do_jmp;		// uinst jump (jsr/tjsr) flag, pipelined
-wire uc_do_ret;		// ret flag, pipelined
-wire uc_halt_flag;	// uinst field, decoded 'halt' flag
-wire uc_halt;		// halt command
-reg halt_reg;		// halt status reg, output as 'halt' signal
-wire uc_ei;			// uinst field, decoded 'ei' flag
-wire uc_di;			// uinst field, decoded 'di' flag
-reg inte_reg;		// inte status reg, output as 'inte' signal
-reg int_pending;	// intr requested, inta not active yet
-reg inta_reg;		// inta status reg, output as 'inta'
-wire clr_t1;		// uinst field, explicitly erase T1
-wire do_clr_t1;		// clr_t1 pipelined
-wire clr_t2;		// uinst field, explicitly erase T2
-wire do_clr_t2;		// clr_t2 pipelined
-wire [31:0] ucode;	// microcode word
-reg [24:0] ucode_field2;	// pipelined microcode
+wire uc_do_jmp;     // uinst jump (jsr/tjsr) flag, pipelined
+wire uc_do_ret;     // ret flag, pipelined
+wire uc_halt_flag;  // uinst field, decoded 'halt' flag
+wire uc_halt;       // halt command
+reg halt_reg;       // halt status reg, output as 'halt' signal
+wire uc_ei;         // uinst field, decoded 'ei' flag
+wire uc_di;         // uinst field, decoded 'di' flag
+reg inte_reg;       // inte status reg, output as 'inte' signal
+reg int_pending;    // intr requested, inta not active yet
+reg inta_reg;       // inta status reg, output as 'inta'
+wire clr_t1;        // uinst field, explicitly erase T1
+wire do_clr_t1;     // clr_t1 pipelined
+wire clr_t2;        // uinst field, explicitly erase T2
+wire do_clr_t2;     // clr_t2 pipelined
+wire [31:0] ucode;  // microcode word
+reg [24:0] ucode_field2;    // pipelined microcode
 // used to delay interrup enable for one entire instruction after EI
 reg delayed_ei;
 
-wire load_al; 		// uinst field, load AL reg from rbank
-wire load_addr; 	// uinst field, enable external addr reg load
-wire load_t1; 		// uinst field, load reg T1 
-wire load_t2; 		// uinst field, load reg T2
-wire mux_in; 		// uinst field, T1/T2 input data selection
-wire load_do; 		// uinst field, pipelined, load DO reg
+wire load_al;       // uinst field, load AL reg from rbank
+wire load_addr;     // uinst field, enable external addr reg load
+wire load_t1;       // uinst field, load reg T1 
+wire load_t2;       // uinst field, load reg T2
+wire mux_in;        // uinst field, T1/T2 input data selection
+wire load_do;       // uinst field, pipelined, load DO reg
 // rb_addr_sel: uinst field, rbank address selection: (sss,ddd,pp,ra_field)
 wire [1:0] rb_addr_sel;
 // ra_field: uinst field, explicit reg bank address
 wire [3:0] ra_field; 
-wire [7:0] rbank_data;	// rbank output
-reg [7:0] alu_output;	// ALU output
+wire [7:0] rbank_data;  // rbank output
+reg [7:0] alu_output;   // ALU output
 // data_output: datapath output: ALU output vs. F reg 
 wire [7:0] data_output; 
-reg [7:0] T1; 		// T1 reg (ALU operand)
-reg [7:0] T2; 		// T2 reg (ALU operand)
+reg [7:0] T1;       // T1 reg (ALU operand)
+reg [7:0] T2;       // T2 reg (ALU operand)
 // alu_input: data loaded into T1, T2: rbank data vs. DI
 wire [7:0] alu_input;
-wire we_rb;							// uinst field, commands a write to the rbank
-wire inhibit_pc_increment;			// avoid PC changes (during INTA)
-reg [3:0] rbank_rd_addr; 			// rbank rd addr
-wire [3:0] rbank_wr_addr; 			// rbank wr addr
-reg [7:0] DO; 						// data output reg
+wire we_rb;                         // uinst field, commands a write to the rbank
+wire inhibit_pc_increment;          // avoid PC changes (during INTA)
+reg [3:0] rbank_rd_addr;            // rbank rd addr
+wire [3:0] rbank_wr_addr;           // rbank wr addr
+reg [7:0] DO;                       // data output reg
     
 // Register bank : BC, DE, HL, AF, [PC, XY, ZW, SP]
 // This will be implemented as asynchronous LUT RAM in those devices where this
@@ -226,31 +226,31 @@ reg [7:0] DO; 						// data output reg
 // (Altera).
 reg [7:0] rbank[0:15];
 
-reg [7:0] flag_reg;		// F register
+reg [7:0] flag_reg;     // F register
 // flag_pattern: uinst field, F update pattern: which flags are updated
 wire [1:0] flag_pattern;
-wire flag_s; 			// new computed S flag  
-wire flag_z; 			// new computed Z flag
-wire flag_p; 			// new computed P flag
-wire flag_cy; 			// new computed C flag
-wire flag_cy_1; 		// C flag computed from arith/logic operation
-wire flag_cy_2; 		// C flag computed from CPC circuit
-wire do_cy_op; 			// ALU explicit CY operation (CPC, etc.)
-wire do_cy_op_d; 		// do_cy_op, pipelined
-wire do_cpc; 			// ALU operation is CPC
-wire do_cpc_d; 			// do_cpc, pipelined
-wire do_daa; 			// ALU operation is DAA
-wire clear_cy; 			// Instruction unconditionally clears CY
-wire clear_ac; 			// Instruction unconditionally clears AC
-wire set_ac; 			// Instruction unconditionally sets AC
-wire flag_ac; 			// new computed half carry flag
+wire flag_s;            // new computed S flag  
+wire flag_z;            // new computed Z flag
+wire flag_p;            // new computed P flag
+wire flag_cy;           // new computed C flag
+wire flag_cy_1;         // C flag computed from arith/logic operation
+wire flag_cy_2;         // C flag computed from CPC circuit
+wire do_cy_op;          // ALU explicit CY operation (CPC, etc.)
+wire do_cy_op_d;        // do_cy_op, pipelined
+wire do_cpc;            // ALU operation is CPC
+wire do_cpc_d;          // do_cpc, pipelined
+wire do_daa;            // ALU operation is DAA
+wire clear_cy;          // Instruction unconditionally clears CY
+wire clear_ac;          // Instruction unconditionally clears AC
+wire set_ac;            // Instruction unconditionally sets AC
+wire flag_ac;           // new computed half carry flag
 // flag_aux_cy: new computed half carry flag (used in 16-bit ops)
 wire flag_aux_cy;
-wire load_psw; 			// load F register
+wire load_psw;          // load F register
 
 // aux carry computation and control signals
-wire use_aux; 			// decoded from flags in 1st phase
-wire use_aux_cy; 		// 2nd phase signal
+wire use_aux;           // decoded from flags in 1st phase
+wire use_aux_cy;        // 2nd phase signal
 reg reg_aux_cy;
 wire aux_cy_in;
 wire set_aux_cy;
@@ -258,9 +258,9 @@ wire set_aux;
 
 // ALU control signals, together they select ALU operation
 wire [1:0] alu_fn;
-wire use_logic; 		// logic/arith mux control 
+wire use_logic;         // logic/arith mux control 
 wire [1:0] mux_fn;
-wire use_psw; 			// ALU/F mux control
+wire use_psw;           // ALU/F mux control
 
 // ALU arithmetic operands and result
 wire [8:0] arith_op1;
@@ -296,8 +296,8 @@ wire [7:0] alu_mux1;
 // IR register, load when uc_decode flag activates 
 always @ (posedge clk) 
 begin
-	if (uc_decode) 
-		IR <= data_in;
+    if (uc_decode) 
+        IR <= data_in;
 end
 
 assign s_field = IR[2:0]; // IR field extraction : sss reg code
@@ -308,7 +308,7 @@ assign p_field = IR[5:4]; // pp 16-bit reg pair code
 // Microcode sequencer
 // do_reset is reset delayed 1 cycle
 always @ (posedge clk)    
-	do_reset <= reset;
+    do_reset <= reset;
 
 assign uc_flags1 = ucode[31:29];
 assign uc_flags2 = ucode[28:26];
@@ -336,7 +336,7 @@ assign load_al = ucode[24];
 assign load_addr = ucode[25];
 
 assign do_cy_op_d = (ucode[5:2] == 4'b1011) ? 1'b1 : 1'b0; // decode CY ALU op
-assign do_cpc_d = ucode[0];	// decode CPC ALU op
+assign do_cpc_d = ucode[0]; // decode CPC ALU op
 
 // uinst jump command, either unconditional or on a given condition
 assign uc_do_jmp = uc_jsr | (uc_tjsr & condition_reg);
@@ -365,39 +365,39 @@ assign addr_plus_1 = uc_addr + 8'd1;
 // Note how we used DI (containing instruction opcode) as a microcode address
 always @ (*)
 begin 
-	case (uc_addr_sel)
-		4'b1000:	next_uc_addr <= {1'b0, uc_ret_addr};	// ret                        
-		4'b0100:	next_uc_addr <= {1'b0, uc_jmp_addr};	// jsr/tjsr                   
-		4'b0000:	next_uc_addr <= {1'b0, addr_plus_1};	// uaddr++                    
-		4'b0001:	next_uc_addr <= {6'b0, uc_halt, 2'b11};	// end: go to fetch/halt uaddr
-		default:	next_uc_addr <= {1'b1, data_in};		// decode fetched address 
-	endcase  
+    case (uc_addr_sel)
+        4'b1000:    next_uc_addr <= {1'b0, uc_ret_addr};    // ret                        
+        4'b0100:    next_uc_addr <= {1'b0, uc_jmp_addr};    // jsr/tjsr                   
+        4'b0000:    next_uc_addr <= {1'b0, addr_plus_1};    // uaddr++                    
+        4'b0001:    next_uc_addr <= {6'b0, uc_halt, 2'b11}; // end: go to fetch/halt uaddr
+        default:    next_uc_addr <= {1'b1, data_in};        // decode fetched address 
+    endcase  
 end 
 
 // read microcode rom is implemented here in a different module 
 micro_rom rom 
 (
-	.clock(clk), 
-	.uc_addr(next_uc_addr), 
-	.uc_dout(ucode) 
+    .clock(clk), 
+    .uc_addr(next_uc_addr), 
+    .uc_dout(ucode) 
 );
 
 // microcode address register
 always @ (posedge clk)
 begin 
-	if (reset) 
-		uc_addr <= 8'h0;
-	else
-		uc_addr <= next_uc_addr[7:0];  
+    if (reset) 
+        uc_addr <= 8'h0;
+    else
+        uc_addr <= next_uc_addr[7:0];  
 end 
 
 // ucode address 1-level 'return stack'
 always @ (posedge clk)
 begin
-	if (reset) 
-		uc_ret_addr <= 8'h0;
-	else if (uc_do_jmp) 
-		uc_ret_addr <= addr_plus_1;
+    if (reset) 
+        uc_ret_addr <= 8'h0;
+    else if (uc_do_jmp) 
+        uc_ret_addr <= addr_plus_1;
 end    
 
 assign alu_op = ucode[3:0]; 
@@ -407,18 +407,18 @@ assign alu_op = ucode[3:0];
 // some constraints on uinst programming but simplifies the system.
 always @ (posedge clk)
 begin
-	ucode_field2 <= {do_cy_op_d, do_cpc_d, clr_t2, clr_t1, 
-					  set_aux, use_aux, rbank_rd_addr, ucode[14:4], alu_op};
+    ucode_field2 <= {do_cy_op_d, do_cpc_d, clr_t2, clr_t1, 
+                      set_aux, use_aux, rbank_rd_addr, ucode[14:4], alu_op};
 end
 
 //---------------------------------------------------------------------------------------
 // HALT logic
 always @ (posedge clk)
 begin
-	if (reset || int_pending)	//inta_reg
-		halt_reg <= 1'b0;
-	else if (uc_halt) 
-		halt_reg <= 1'b1;
+    if (reset || int_pending)   //inta_reg
+        halt_reg <= 1'b0;
+    else if (uc_halt) 
+        halt_reg <= 1'b1;
 end
 
 assign halt = halt_reg;
@@ -427,30 +427,30 @@ assign halt = halt_reg;
 // INTE logic // inte_reg = 1'b1 means interrupts ENABLED
 always @ (posedge clk)
 begin
-	if (reset) 
-	begin 
-		inte_reg <= 1'b0;
-		delayed_ei <= 1'b0;
-	end 
-	else 
-	begin 
-		if ((uc_di || uc_ei) && uc_end) 
-		begin 
-			//inte_reg <= uc_ei;
-			delayed_ei <= uc_ei; // FIXME DI must not be delayed
-		end 
-		
-		// at the last cycle of every instruction...
-		if (uc_end) 
-		begin 
-			// ...disable interrupts if the instruction is DI...
-			if (uc_di) 
-				inte_reg <= 1'b0;
-			else
-			// ...of enable interrupts after the instruction following EI
-				inte_reg <= delayed_ei;
-		end 
-	end 
+    if (reset) 
+    begin 
+        inte_reg <= 1'b0;
+        delayed_ei <= 1'b0;
+    end 
+    else 
+    begin 
+        if ((uc_di || uc_ei) && uc_end) 
+        begin 
+            //inte_reg <= uc_ei;
+            delayed_ei <= uc_ei; // FIXME DI must not be delayed
+        end 
+        
+        // at the last cycle of every instruction...
+        if (uc_end) 
+        begin 
+            // ...disable interrupts if the instruction is DI...
+            if (uc_di) 
+                inte_reg <= 1'b0;
+            else
+            // ...of enable interrupts after the instruction following EI
+                inte_reg <= delayed_ei;
+        end 
+    end 
 end 
 
 assign inte = inte_reg;
@@ -459,20 +459,20 @@ assign inte = inte_reg;
 // honored when interrupts are enabled
 always @ (posedge clk)
 begin
-	if (reset) 
-		int_pending <= 1'b0;
-	else 
-	begin 
-		// intr will raise int_pending only if inta has not been asserted. 
-		// Otherwise, if intr overlapped inta, we'd enter a microcode endless 
-		// loop, executing the interrupt vector again and again.
-		if (intr && inte_reg && !int_pending && !inta_reg) 
-			int_pending <= 1'b1;
-		else if (inte_reg && uc_end) 
-			// int_pending is cleared when we're about to service the interrupt, 
-			// that is when interrupts are enabled and the current instruction ends.
-			int_pending <= 1'b0;
-	end 
+    if (reset) 
+        int_pending <= 1'b0;
+    else 
+    begin 
+        // intr will raise int_pending only if inta has not been asserted. 
+        // Otherwise, if intr overlapped inta, we'd enter a microcode endless 
+        // loop, executing the interrupt vector again and again.
+        if (intr && inte_reg && !int_pending && !inta_reg) 
+            int_pending <= 1'b1;
+        else if (inte_reg && uc_end) 
+            // int_pending is cleared when we're about to service the interrupt, 
+            // that is when interrupts are enabled and the current instruction ends.
+            int_pending <= 1'b0;
+    end 
 end
 
 //---------------------------------------------------------------------------------------
@@ -485,18 +485,18 @@ end
 // It's up to you figuring out which cycle is which in multibyte instructions.
 always @ (posedge clk)
 begin
-	if (reset) 
-		inta_reg <= 1'b0;
-	else if (int_pending && uc_end) 
- 		// enter INTA state
-		inta_reg <= 1'b1;
-	else if (uc_end && !uc_halt_flag) 
-		// exit INTA state
-		// NOTE: don't reset inta when exiting halt state (uc_halt_flag=1'b1).
-		// If we omit this condition, when intr happens on halt state, inta
-		// will only last for 1 cycle, because in halt state uc_end is 
-		// always asserted.
-		inta_reg <= 1'b0;
+    if (reset) 
+        inta_reg <= 1'b0;
+    else if (int_pending && uc_end) 
+        // enter INTA state
+        inta_reg <= 1'b1;
+    else if (uc_end && !uc_halt_flag) 
+        // exit INTA state
+        // NOTE: don't reset inta when exiting halt state (uc_halt_flag=1'b1).
+        // If we omit this condition, when intr happens on halt state, inta
+        // will only last for 1 cycle, because in halt state uc_end is 
+        // always asserted.
+        inta_reg <= 1'b0;
 end    
   
 assign inta = inta_reg;
@@ -518,19 +518,19 @@ assign do_clr_t2 = ucode_field2[22];
 // T1 register 
 always @ (posedge clk)
 begin
-	if (reset || uc_decode || do_clr_t1) 
-		T1 <= 8'h0;
-	else if (load_t1) 
-		T1 <= alu_input;
+    if (reset || uc_decode || do_clr_t1) 
+        T1 <= 8'h0;
+    else if (load_t1) 
+        T1 <= alu_input;
 end
 
 // T2 register
 always @ (posedge clk)
 begin
-	if (reset || uc_decode || do_clr_t2) 
-		T2 <= 8'h0;
-	else if (load_t2) 
-		T2 <= alu_input;
+    if (reset || uc_decode || do_clr_t2) 
+        T2 <= 8'h0;
+    else if (load_t2) 
+        T2 <= alu_input;
 end
 
 // T1/T2 input data mux
@@ -541,12 +541,12 @@ assign rbh = (p_field == 2'b11) ? 1'b1 : 1'b0;
 
 always @ (*) 
 begin 
-	case (rb_addr_sel) 
-		2'b00:	rbank_rd_addr <= ra_field;    
-		2'b01:	rbank_rd_addr <= {1'b0, s_field};
-		2'b10:	rbank_rd_addr <= {1'b0, d_field}; 
-		2'b11:	rbank_rd_addr <= {rbh, p_field, ra_field[0]};
-	endcase 
+    case (rb_addr_sel) 
+        2'b00:  rbank_rd_addr <= ra_field;    
+        2'b01:  rbank_rd_addr <= {1'b0, s_field};
+        2'b10:  rbank_rd_addr <= {1'b0, d_field}; 
+        2'b11:  rbank_rd_addr <= {rbh, p_field, ra_field[0]};
+    endcase 
 end 
 
 // RBank writes are inhibited in INTA state, but only for PC increments.
@@ -560,8 +560,8 @@ assign we_rb = ucode_field2[6] & ~inhibit_pc_increment;
 assign rbank_wr_addr = ucode_field2[18:15];
 always @ (posedge clk)
 begin
-	if (we_rb) 
-		rbank[rbank_wr_addr] <= alu_output;
+    if (we_rb) 
+        rbank[rbank_wr_addr] <= alu_output;
 end
 assign rbank_data = rbank[rbank_rd_addr];
 
@@ -571,8 +571,8 @@ assign data_output = use_psw ? flag_reg : alu_output;
 
 always @ (posedge clk)
 begin
-	if (load_do) 
-		DO <= data_output;
+    if (load_do) 
+        DO <= data_output;
 end
 
 //---------------------------------------------------------------------------------------
@@ -637,12 +637,12 @@ assign daa_test1 = (flag_reg[4] || daa_test1a) ? 1'b1 : 1'b0;
 
 always @ (posedge clk)
 begin
-	if (reset) 
-		daa_res9 <= 9'b0;
-	else if (daa_test1) 
-		daa_res9 <= arith_op2 + 9'd6;
-	else
-		daa_res9 <= arith_op2;
+    if (reset) 
+        daa_res9 <= 9'b0;
+    else if (daa_test1) 
+        daa_res9 <= arith_op2 + 9'd6;
+    else
+        daa_res9 <= arith_op2;
 end
 
 assign daa_test2 = (flag_reg[0] || daa_test1a) ? 1'b1 : 1'b0;
@@ -661,38 +661,38 @@ assign cy_arith = do_daa ? cy_daa : cy_adder;
 // Logic operations block
 always @ (*) 
 begin 
-	case (alu_fn) 
-		2'b00:	logic_res <= T1 & T2; 
-		2'b01:	logic_res <= T1 ^ T2; 
-		2'b10:	logic_res <= T1 | T2; 
-		2'b11:	logic_res <= ~T1;   
-	endcase 
+    case (alu_fn) 
+        2'b00:  logic_res <= T1 & T2; 
+        2'b01:  logic_res <= T1 ^ T2; 
+        2'b10:  logic_res <= T1 | T2; 
+        2'b11:  logic_res <= ~T1;   
+    endcase 
 end 
 
 //---------------------------------------------------------------------------------------
 // Shifter
 assign shift_res[6:1] = (!alu_fn[0]) ? T1[5:0] : T1[7:2]; 
 
-assign shift_res[0] = (alu_fn == 2'b00) ? T1[7] :	// rot left 
-                      (alu_fn == 2'b10) ? cy_in :	// rot left through carry
-                                          T1[1];	// rot right
-assign shift_res[7] = (alu_fn == 2'b01) ? T1[0] :	// rot right
-                      (alu_fn == 2'b11) ? cy_in :	// rot right through carry
-                                          T1[6]; 	// rot left
+assign shift_res[0] = (alu_fn == 2'b00) ? T1[7] :   // rot left 
+                      (alu_fn == 2'b10) ? cy_in :   // rot left through carry
+                                          T1[1];    // rot right
+assign shift_res[7] = (alu_fn == 2'b01) ? T1[0] :   // rot right
+                      (alu_fn == 2'b11) ? cy_in :   // rot right through carry
+                                          T1[6];    // rot left
 
-assign cy_shifter = (!alu_fn[0]) ? T1[7] :		// left
-                                   T1[0]; 		// right
+assign cy_shifter = (!alu_fn[0]) ? T1[7] :      // left
+                                   T1[0];       // right
 
 assign alu_mux1 = use_logic ? logic_res : shift_res;
 
 always @ (*) 
 begin 
-	case (mux_fn) 
-		2'b00:	alu_output <= alu_mux1;
-		2'b01:	alu_output <= arith_daa_res;
-		2'b10:	alu_output <= ~alu_mux1;
-		2'b11:	alu_output <= {2'b0, d_field, 3'b0}; 	// RST  
-	endcase 
+    case (mux_fn) 
+        2'b00:  alu_output <= alu_mux1;
+        2'b01:  alu_output <= arith_daa_res;
+        2'b10:  alu_output <= ~alu_mux1;
+        2'b11:  alu_output <= {2'b0, d_field, 3'b0};    // RST  
+    endcase 
 end 
 
 //---------------------------------------------------------------------------------------
@@ -720,10 +720,10 @@ assign flag_aux_cy = cy_adder;
 // auxiliary carry reg
 always @ (posedge clk)
 begin
-	if (reset || uc_decode) 
-		reg_aux_cy <= 1'b1; // inits to 0 every instruction
-	else
-		reg_aux_cy <= flag_aux_cy;
+    if (reset || uc_decode) 
+        reg_aux_cy <= 1'b1; // inits to 0 every instruction
+    else
+        reg_aux_cy <= flag_aux_cy;
 end              
 
 // load PSW from ALU (i.e. POP AF) or from flag signals
@@ -735,67 +735,67 @@ assign load_psw = (we_rb && (rbank_wr_addr == 4'b0110)) ? 1'b1 : 1'b0;
 // F register, flags S,Z,AC,P and C 
 always @ (posedge clk)
 begin
-	if (reset) 
-	begin 
-		flag_reg[7] <= 1'b0;
-		flag_reg[6] <= 1'b0;
-		flag_reg[5] <= 1'b0; // constant flag
-		flag_reg[4] <= 1'b0;
-		flag_reg[3] <= 1'b0; // constant flag
-		flag_reg[2] <= 1'b0;
-		flag_reg[1] <= 1'b1; // constant flag
-		flag_reg[0] <= 1'b0;
-	end 
-	else 
-	begin 
-		if (flag_pattern[1])
-		begin  
-			if (load_psw) 
-			begin 
-				flag_reg[7] <= alu_output[7];
-				flag_reg[6] <= alu_output[6];
-				flag_reg[4] <= alu_output[4];
-				flag_reg[2] <= alu_output[2];
-			end 
-			else
-			begin 
-				flag_reg[7] <= flag_s;
-				flag_reg[6] <= flag_z;
-				flag_reg[4] <= flag_ac;
-				flag_reg[2] <= flag_p;      
-			end 
-		end 
+    if (reset) 
+    begin 
+        flag_reg[7] <= 1'b0;
+        flag_reg[6] <= 1'b0;
+        flag_reg[5] <= 1'b0; // constant flag
+        flag_reg[4] <= 1'b0;
+        flag_reg[3] <= 1'b0; // constant flag
+        flag_reg[2] <= 1'b0;
+        flag_reg[1] <= 1'b1; // constant flag
+        flag_reg[0] <= 1'b0;
+    end 
+    else 
+    begin 
+        if (flag_pattern[1])
+        begin  
+            if (load_psw) 
+            begin 
+                flag_reg[7] <= alu_output[7];
+                flag_reg[6] <= alu_output[6];
+                flag_reg[4] <= alu_output[4];
+                flag_reg[2] <= alu_output[2];
+            end 
+            else
+            begin 
+                flag_reg[7] <= flag_s;
+                flag_reg[6] <= flag_z;
+                flag_reg[4] <= flag_ac;
+                flag_reg[2] <= flag_p;      
+            end 
+        end 
 
-		// C flag 		
-		if (flag_pattern[0]) 
-		begin 
-			if (load_psw) 
-				flag_reg[0] <= alu_output[0];  
-			else
-				flag_reg[0] <= flag_cy;
-		end 
-		
-		// constant flags 
-		flag_reg[5] <= 1'b0; // constant flag
-		flag_reg[3] <= 1'b0; // constant flag
-		flag_reg[1] <= 1'b1; // constant flag
-	end 
+        // C flag       
+        if (flag_pattern[0]) 
+        begin 
+            if (load_psw) 
+                flag_reg[0] <= alu_output[0];  
+            else
+                flag_reg[0] <= flag_cy;
+        end 
+        
+        // constant flags 
+        flag_reg[5] <= 1'b0; // constant flag
+        flag_reg[3] <= 1'b0; // constant flag
+        flag_reg[1] <= 1'b1; // constant flag
+    end 
 end
 
 //---------------------------------------------------------------------------------------
 // Condition computation
 always @ (*) 
 begin 
-	case (d_field[2:0]) 
-		3'b000:	condition <= ~flag_reg[6]; // NZ 
-		3'b001:	condition <=  flag_reg[6]; // Z 
-		3'b010:	condition <= ~flag_reg[0]; // NC
-		3'b011:	condition <=  flag_reg[0]; // C 
-		3'b100:	condition <= ~flag_reg[2]; // PO
-		3'b101:	condition <=  flag_reg[2]; // PE
-		3'b110:	condition <= ~flag_reg[7]; // P 
-		3'b111:	condition <=  flag_reg[7]; // M 
-	endcase 
+    case (d_field[2:0]) 
+        3'b000: condition <= ~flag_reg[6]; // NZ 
+        3'b001: condition <=  flag_reg[6]; // Z 
+        3'b010: condition <= ~flag_reg[0]; // NC
+        3'b011: condition <=  flag_reg[0]; // C 
+        3'b100: condition <= ~flag_reg[2]; // PO
+        3'b101: condition <=  flag_reg[2]; // PE
+        3'b110: condition <= ~flag_reg[7]; // P 
+        3'b111: condition <=  flag_reg[7]; // M 
+    endcase 
 end 
                 
 // condition is registered to shorten the delay path; the extra 1-cycle
@@ -803,19 +803,19 @@ end
 // at the earliest, and there's at least the fetch uinsts intervening.                
 always @ (posedge clk)
 begin
-	if (reset) 
-		condition_reg <= 1'b0;
-	else
-		condition_reg <= condition;
+    if (reset) 
+        condition_reg <= 1'b0;
+    else
+        condition_reg <= condition;
 end                            
 
 // low byte address register
 always @ (posedge clk)
 begin
-	if (reset) 
-		addr_low <= 8'h0;
-	else if (load_al) 
-		addr_low <= rbank_data;
+    if (reset) 
+        addr_low <= 8'h0;
+    else if (load_al) 
+        addr_low <= rbank_data;
 end
 
 // note external address registers (high byte) are loaded directly from rbank
