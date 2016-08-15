@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define CLKFREQ   12000000    // frequency of incoming signal 'clk'
+`define CLKFREQ   50000000    // frequency of incoming signal 'clk'
 `define BAUD      115200
 
 // Simple baud generator for transmitter

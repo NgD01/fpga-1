@@ -1,66 +1,6 @@
 `timescale 1 ns / 1 ps
-
 `default_nettype none
 `define WIDTH 16
-
-module SB_RAM2048x2(
-	output [1:0] RDATA,
-	input        RCLK, RCLKE, RE,
-	input  [10:0] RADDR,
-	input         WCLK, WCLKE, WE,
-	input  [10:0] WADDR,
-	input  [1:0] MASK, WDATA
-);
-	parameter INIT_0 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_1 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_2 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_3 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_4 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_5 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_6 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_7 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_8 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_9 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_A = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_B = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_C = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_D = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_E = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-	parameter INIT_F = 256'h0000000000000000000000000000000000000000000000000000000000000000;
-
-  wire [15:0] rd;
-
-  SB_RAM40_4K #(
-    .WRITE_MODE(3),
-    .READ_MODE(3),
-    .INIT_0(INIT_0),
-    .INIT_1(INIT_1),
-    .INIT_2(INIT_2),
-    .INIT_3(INIT_3),
-    .INIT_4(INIT_4),
-    .INIT_5(INIT_5),
-    .INIT_6(INIT_6),
-    .INIT_7(INIT_7),
-    .INIT_8(INIT_8),
-    .INIT_9(INIT_9),
-    .INIT_A(INIT_A),
-    .INIT_B(INIT_B),
-    .INIT_C(INIT_C),
-    .INIT_D(INIT_D),
-    .INIT_E(INIT_E),
-    .INIT_F(INIT_F)
-  ) _ram (
-    .RDATA(rd),
-    .RADDR(RADDR),
-    .RCLK(RCLK), .RCLKE(RCLKE), .RE(RE),
-    .WCLK(WCLK), .WCLKE(WCLKE), .WE(WE),
-    .WADDR(WADDR),
-    .MASK(16'h0000), .WDATA({4'b0, WDATA[1], 7'b0, WDATA[0], 3'b0}));
-
-  assign RDATA[0] = rd[3];
-  assign RDATA[1] = rd[11];
-
-endmodule
 
 module ioport(
   input clk,
@@ -171,7 +111,7 @@ module top(input pclk, output D1, output D2, output D3, output D4, output D5,
 
            input resetq
 );
-  localparam MHZ = 12;
+  localparam MHZ = 50;
 
   wire clk = pclk;
 /*
@@ -358,15 +298,15 @@ module top(input pclk, output D1, output D2, output D3, output D4, output D5,
   */
 
   assign io_din =
-    (io_addr_[ 0] ? {8'd0, pmod_in}                                     : 16'd0) |
-    (io_addr_[ 1] ? {8'd0, pmod_dir}                                    : 16'd0) |
-    (io_addr_[ 2] ? {11'd0, LEDS}                                       : 16'd0) |
-    (io_addr_[ 3] ? {11'd0, PIOS}                                       : 16'd0) |
-    (io_addr_[ 4] ? {8'd0, hdr1_in}                                     : 16'd0) |
-    (io_addr_[ 5] ? {8'd0, hdr1_dir}                                    : 16'd0) |
-    (io_addr_[ 6] ? {8'd0, hdr2_in}                                     : 16'd0) |
-    (io_addr_[ 7] ? {8'd0, hdr2_dir}                                    : 16'd0) |
-    (io_addr_[12] ? {8'd0, uart0_data}                                  : 16'd0) |
+    (io_addr_[ 0] ? {8'd0, pmod_in}                                 : 16'd0) |
+    (io_addr_[ 1] ? {8'd0, pmod_dir}                                : 16'd0) |
+    (io_addr_[ 2] ? {11'd0, LEDS}                                   : 16'd0) |
+    (io_addr_[ 3] ? {11'd0, PIOS}                                   : 16'd0) |
+    (io_addr_[ 4] ? {8'd0, hdr1_in}                                 : 16'd0) |
+    (io_addr_[ 5] ? {8'd0, hdr1_dir}                                : 16'd0) |
+    (io_addr_[ 6] ? {8'd0, hdr2_in}                                 : 16'd0) |
+    (io_addr_[ 7] ? {8'd0, hdr2_dir}                                : 16'd0) |
+    (io_addr_[12] ? {8'd0, uart0_data}                              : 16'd0) |
     (io_addr_[13] ? {11'd0, random, PIO1_19, PIOS_01, uart0_valid, !uart0_busy} : 16'd0);
 
   reg boot, s0, s1;
