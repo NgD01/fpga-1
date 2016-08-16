@@ -1,7 +1,7 @@
 ### Dabbling in the world of FPGAs
 
 [edgeSim](quartus/edgeSim/) :
-An example of simulating a circuit without hardware
+An example of simulating a circuit without hardware  
 [lite8080](quartus/lite8080/) :
 A microcoded 8080 core running a Small-C demo - cystarter  
 [fourHex](quartus/fourHex/) :
