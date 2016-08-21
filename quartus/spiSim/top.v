@@ -4,7 +4,7 @@ module newspi (
     input [7:0] data_in,
     output done,
     output [7:0] data_out,
-    output sck, mosi,
+    output sclk, mosi,
     input miso
 );
 
@@ -12,7 +12,7 @@ reg [4:0] count;
 reg [7:0] shifter;
 reg active;
 
-wire sck = !count[0];
+wire sclk = !count[0];
 wire busy = count[4];
 wire done = !active;
 wire data_out = shifter;
@@ -35,7 +35,7 @@ always @(*) begin
                 count_n = count + 1;
             else
                 active_n = 0;
-            if (sck)
+            if (sclk)
                 mosi_n = shifter[7];
             else
                 shifter_n = { shifter[6:0], miso };
