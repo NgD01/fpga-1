@@ -1,5 +1,7 @@
 ### Dabbling in the world of FPGAs
 
+[spiSim](quartus/spiSim/) :
+Writing a minimal SPI master controller from scratch
 [sdramSim](quartus/sdramSim/) :
 Simulation of [fpga4fun][F4F]'s simple SDRAM memory controller  
 [edgeSim](quartus/edgeSim/) :
