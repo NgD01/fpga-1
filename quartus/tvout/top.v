@@ -42,9 +42,10 @@ always @(*)
 
 wire enable = mode == VISIBLE;
 wire vsync = mode == VSYNC;
-wire hsync = 529 <= xpos && xpos < 576;
+wire hsync = 533 <= xpos && xpos < 580;
 
-assign vout = enable && (xpos==0 || xpos==491 || ypos==20 || ypos==287);
+assign vout = enable && (xpos==4 || xpos == 14 || xpos == 485 || xpos==495 ||
+                        ypos==20 || ypos == 30 || ypos == 277 || ypos==287);
 assign sync_ = enable || !(vsync || hsync);
 
 endmodule
