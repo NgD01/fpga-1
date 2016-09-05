@@ -40,12 +40,19 @@ always @(*)
     else
         mode = BLANKED;
 
-wire enable = mode == VISIBLE;
 wire vsync = mode == VSYNC;
 wire hsync = 533 <= xpos && xpos < 580;
 
-assign vout = enable && (xpos==4 || xpos == 14 || xpos == 485 || xpos==495 ||
-                        ypos==20 || ypos == 30 || ypos == 277 || ypos==287);
-assign sync_ = enable || !(vsync || hsync);
+// delay by one clk10 cycle to perform the video ram fetch
+reg enable_d, vout_d, sync_d;
+always @(posedge clk10) begin
+    enable_d = mode == VISIBLE;
+    vout_d <= xpos == 4 || xpos == 14 || xpos == 485 || xpos == 495 ||
+              ypos == 20 || ypos == 30 || ypos == 277 || ypos == 287;
+    sync_d <= vsync || hsync;
+end
+
+assign vout = enable_d && vout_d;
+assign sync_ = !sync_d;
 
 endmodule
