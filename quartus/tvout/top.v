@@ -41,51 +41,26 @@ always @(*)
 wire hsync = 533 <= xpos && xpos < 580;
 
 reg [15:0] vdata, vmem [512*288/16]; // 18 KB
-initial begin
-    vmem[17'h01050] = 16'b0000001110011111;
-    vmem[17'h01070] = 16'b0000010001000001;
-    vmem[17'h01090] = 16'b0000010001000010;
-    vmem[17'h010B0] = 16'b0000011111000100;
-    vmem[17'h010D0] = 16'b0000010001001000;
-    vmem[17'h010F0] = 16'b0000010001010000;
-    vmem[17'h01110] = 16'b0000010001010000;
 
-    vmem[17'h01051] = 16'b0011100111110000;
-    vmem[17'h01071] = 16'b0100010000010000;
-    vmem[17'h01091] = 16'b0100010000100000;
-    vmem[17'h010B1] = 16'b0111110001000000;
-    vmem[17'h010D1] = 16'b0100010010000000;
-    vmem[17'h010F1] = 16'b0100010100000000;
-    vmem[17'h01111] = 16'b0100010100000000;
-
-    vmem[17'h01150] = 16'b0000001110011111;
-    vmem[17'h01170] = 16'b0000010001000001;
-    vmem[17'h01190] = 16'b0000010001000010;
-    vmem[17'h011B0] = 16'b0000011111000100;
-    vmem[17'h011D0] = 16'b0000010001001000;
-    vmem[17'h011F0] = 16'b0000010001010000;
-    vmem[17'h01210] = 16'b0000010001010000;
-
-    vmem[17'h01151] = 16'b0011100111110000;
-    vmem[17'h01171] = 16'b0100010000010000;
-    vmem[17'h01191] = 16'b0100010000100000;
-    vmem[17'h011B1] = 16'b0111110001000000;
-    vmem[17'h011D1] = 16'b0100010010000000;
-    vmem[17'h011F1] = 16'b0100010100000000;
-    vmem[17'h01211] = 16'b0100010100000000;
-end
+reg vwr;
+reg [13:0] vaddr, vaddr_r;
+reg [15:0] vdatin, vdatout;
 
 // delay by one cycle to perform the video ram fetch
 reg active_d, vout_d, sync_d;
 always @(posedge clk10) begin
-    active_d = active;
-//  vout_d <= xpos == 4 || xpos == 14 || xpos == 485 || xpos == 495 ||
-//            ypos == 20 || ypos == 30 || ypos == 277 || ypos == 287;
+    if (vwr)
+        vmem[vaddr] <= vdatin;
+    vdatout = vmem[vaddr];
+
+    vaddr_r <= {ypos,xpos[8:4]};
     if (xpos[3:0] == 4'b0)
-        vdata <= vmem[{ypos,xpos[8:4]}];
+        vdata <= 16'h5555; //vmem[vaddr_r];
     else
         vdata <= {vdata[14:0],1'b0};
     vout_d = vdata[15];
+
+    active_d = active;
     sync_d <= vsync || hsync;
 end
 
