@@ -29,13 +29,13 @@ localparam VISIBLE=2'b00, BLANKED=2'b01, VSYNC=2'b10;
 
 reg [1:0] mode;
 always @(*)
-    if (xpos < 492 && ypos < 268)
+    if (xpos < 512 && ypos < 288)
         mode = VISIBLE;
-    else if (ypos < 270)
+    else if (ypos < 290)
         mode = BLANKED;
-    else if (ypos < 272)
+    else if (ypos < 292)
         mode = VSYNC;
-    else if (ypos == 272)
+    else if (ypos == 292)
         mode = xpos < 320 ? VSYNC : BLANKED;
     else
         mode = BLANKED;
@@ -44,7 +44,7 @@ wire enable = mode == VISIBLE;
 wire vsync = mode == VSYNC;
 wire hsync = 529 <= xpos && xpos < 576;
 
-assign vout = enable && (xpos == 0 || xpos == 491 || ypos == 0 || ypos == 267);
+assign vout = enable && (xpos==0 || xpos==491 || ypos==20 || ypos==287);
 assign sync_ = enable || !(vsync || hsync);
 
 endmodule
