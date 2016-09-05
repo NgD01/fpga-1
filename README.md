@@ -1,5 +1,7 @@
 ### Dabbling in the world of FPGAs
 
+[tvout](quartus/tvout/) :
+Generate a PAL monochrome composite video out signal  
 [spiSim](quartus/spiSim/) :
 Writing a minimal SPI master controller from scratch  
 [sdramSim](quartus/sdramSim/) :
