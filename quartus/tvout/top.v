@@ -27,13 +27,13 @@ always @(posedge clk)
 
 reg active, vsync;
 always @(*)
-    if (xpos < 512 && ypos < 288)
+    if (xpos < 512 && ypos < 287)
         {active,vsync} = 2'b10;
-    else if (ypos < 290)
+    else if (ypos < 288)
         {active,vsync} = 2'b00;
-    else if (ypos < 292)
+    else if (ypos < 290)
         {active,vsync} = 2'b01;
-    else if (ypos == 292)
+    else if (ypos == 290)
         {active,vsync} = xpos < 320 ? 2'b01 : 2'b00;
     else
         {active,vsync} = 2'b00;
@@ -42,12 +42,13 @@ wire hsync = 533 <= xpos && xpos < 580;
 
 // delay by one clk10 cycle to perform the video ram fetch
 reg active_d, vout_d, sync_d;
-always @(posedge clk) begin
-    active_d = active;
-    vout_d <= xpos == 4 || xpos == 14 || xpos == 485 || xpos == 495 ||
-              ypos == 20 || ypos == 30 || ypos == 277 || ypos == 287;
-    sync_d <= vsync || hsync;
-end
+always @(posedge clk)
+    if (clk10) begin
+        active_d = active;
+        vout_d <= xpos == 3 || xpos == 13 || xpos == 486 || xpos == 496 ||
+                  ypos == 17 || ypos == 27 || ypos == 276 || ypos == 286;
+        sync_d <= vsync || hsync;
+    end
 
 assign vout = active_d && vout_d;
 assign sync_ = !sync_d;
