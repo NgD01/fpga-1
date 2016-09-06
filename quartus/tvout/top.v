@@ -4,26 +4,26 @@ module top (
 );
 
 reg [2:0] count;
-wire clk10 = count[2];
 always @(posedge clk) begin
     if (count == 4)
         count <= 0;
     else
         count <= count + 3'd1;
 end
+wire clk10 = count == 0;
 
 reg [9:0] xpos;
 reg [8:0] ypos;
-always @(posedge clk10) begin
-    if (xpos == 639) begin
-        xpos <= 0;
-        if (ypos == 308)
-            ypos <= 0;
-        else
-            ypos <= ypos + 9'd1;
-    end else
-        xpos <= xpos + 10'd1;
-end
+always @(posedge clk)
+    if (clk10)
+        if (xpos == 639) begin
+            xpos <= 0;
+            if (ypos == 308)
+                ypos <= 0;
+            else
+                ypos <= ypos + 9'd1;
+        end else
+            xpos <= xpos + 10'd1;
 
 reg active, vsync;
 always @(*)
@@ -40,27 +40,12 @@ always @(*)
 
 wire hsync = 533 <= xpos && xpos < 580;
 
-reg [15:0] vdata, vmem [512*288/16]; // 18 KB
-
-reg vwr;
-reg [13:0] vaddr, vaddr_r;
-reg [15:0] vdatin, vdatout;
-
-// delay by one cycle to perform the video ram fetch
+// delay by one clk10 cycle to perform the video ram fetch
 reg active_d, vout_d, sync_d;
-always @(posedge clk10) begin
-    if (vwr)
-        vmem[vaddr] <= vdatin;
-    vdatout = vmem[vaddr];
-
-    vaddr_r <= {ypos,xpos[8:4]};
-    if (xpos[3:0] == 4'b0)
-        vdata <= 16'h5555; //vmem[vaddr_r];
-    else
-        vdata <= {vdata[14:0],1'b0};
-    vout_d = vdata[15];
-
+always @(posedge clk) begin
     active_d = active;
+    vout_d <= xpos == 4 || xpos == 14 || xpos == 485 || xpos == 495 ||
+              ypos == 20 || ypos == 30 || ypos == 277 || ypos == 287;
     sync_d <= vsync || hsync;
 end
 
