@@ -3,51 +3,51 @@ module top (
     output vout, sync_
 );
 
-reg [2:0] count;
+reg [2:0] clkDiv;
 always @(posedge clk) begin
-    if (count == 4)
-        count <= 0;
+    if (clkDiv == 4)
+        clkDiv <= 0;
     else
-        count <= count + 3'd1;
+        clkDiv <= clkDiv + 3'd1;
 end
-wire clk10 = count == 0;
+wire pixClk = clkDiv == 0;
 
-reg [9:0] xpos;
-reg [8:0] ypos;
+reg [9:0] xPos;
+reg [8:0] yPos;
 always @(posedge clk)
-    if (clk10)
-        if (xpos == 639) begin
-            xpos <= 0;
-            if (ypos == 308)
-                ypos <= 0;
+    if (pixClk)
+        if (xPos == 639) begin
+            xPos <= 0;
+            if (yPos == 308)
+                yPos <= 0;
             else
-                ypos <= ypos + 9'd1;
+                yPos <= yPos + 9'd1;
         end else
-            xpos <= xpos + 10'd1;
+            xPos <= xPos + 10'd1;
 
-reg active, vsync;
+reg active, vSync;
 always @(*)
-    if (xpos < 512 && ypos < 287)
-        {active,vsync} = 2'b10;
-    else if (ypos < 288)
-        {active,vsync} = 2'b00;
-    else if (ypos < 290)
-        {active,vsync} = 2'b01;
-    else if (ypos == 290)
-        {active,vsync} = xpos < 320 ? 2'b01 : 2'b00;
+    if (xPos < 512 && yPos < 287)
+        {active,vSync} = 2'b10;
+    else if (yPos < 288)
+        {active,vSync} = 2'b00;
+    else if (yPos < 290)
+        {active,vSync} = 2'b01;
+    else if (yPos == 290)
+        {active,vSync} = xPos < 320 ? 2'b01 : 2'b00;
     else
-        {active,vsync} = 2'b00;
+        {active,vSync} = 2'b00;
 
-wire hsync = 533 <= xpos && xpos < 580;
+wire hSync = 533 <= xPos && xPos < 580;
 
-// delay by one clk10 cycle to perform the video ram fetch
+// delay by one pixClk cycle to perform the video ram fetch
 reg active_d, vout_d, sync_d;
 always @(posedge clk)
-    if (clk10) begin
+    if (pixClk) begin
         active_d = active;
-        vout_d <= xpos == 3 || xpos == 13 || xpos == 486 || xpos == 496 ||
-                  ypos == 17 || ypos == 27 || ypos == 276 || ypos == 286;
-        sync_d <= vsync || hsync;
+        vout_d <= xPos == 3 || xPos == 13 || xPos == 486 || xPos == 496 ||
+                  yPos == 17 || yPos == 27 || yPos == 276 || yPos == 286;
+        sync_d <= vSync || hSync;
     end
 
 assign vout = active_d && vout_d;
