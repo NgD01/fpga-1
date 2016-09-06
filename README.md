@@ -1,5 +1,7 @@
 ### Dabbling in the world of FPGAs
 
+[vgaout](quartus/vgaout/) :
+Generate a 64-colour 640x480 VGA test signal
 [tvout](quartus/tvout/) :
 Generate a PAL monochrome composite video out signal  
 [spiSim](quartus/spiSim/) :
