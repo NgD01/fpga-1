@@ -21,7 +21,7 @@ always @(posedge clk)
     if (pixClk)
         if (xPos == 799) begin
             xPos <= 0;
-            if (yPos == 523)
+            if (yPos == 524)
                 yPos <= 0;
             else
                 yPos <= yPos + 9'd1;
@@ -41,7 +41,7 @@ always @(*)
 
 wire hSync = 658 <= xPos && xPos < 754;
 
-localparam XMIN=0, XMAX=639, YMIN=6, YMAX=479;
+localparam XMIN=0, XMAX=639, YMIN=0, YMAX=479;
 wire vBars = xPos==XMIN || xPos==XMIN+10 || xPos==XMAX-10 || xPos==XMAX;
 wire hBars = yPos==YMIN || yPos==YMIN+10 || yPos==YMAX-10 || yPos==YMAX;
 wire vTest = vBars && YMIN <= yPos && yPos <= YMAX;
