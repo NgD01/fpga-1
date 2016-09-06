@@ -62,7 +62,7 @@ always @(posedge clk) begin
     end
 end
 
-assign {red,green,blue} = {6{active_d && vout_d}};
+assign {red,green,blue} = {8{active_d && vout_d}};
 assign hsync = hSync_d;
 assign vsync = vSync_d;
 
