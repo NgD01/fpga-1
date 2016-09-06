@@ -23,7 +23,7 @@ always @(posedge clk)
     if (pixClk)
         if (xPos == 639) begin
             xPos <= 0;
-            if (yPos == 308)
+            if (yPos == 258)
                 yPos <= 0;
             else
                 yPos <= yPos + 9'd1;
@@ -32,26 +32,26 @@ always @(posedge clk)
 
 reg active, vSync;
 always @(*)
-    if (xPos < 512 && yPos < 287)
+    if (xPos < 512 && yPos < 240)
         {active,vSync} = 2'b10;
-    else if (yPos < 288)
+    else if (yPos < 242)
         {active,vSync} = 2'b00;
-    else if (yPos < 290)
+    else if (yPos < 244)
         {active,vSync} = 2'b01;
-    else if (yPos == 290)
-        {active,vSync} = xPos < 532-320 ? 2'b01 : 2'b00;
+    else if (yPos == 244)
+        {active,vSync} = xPos < 534-320 ? 2'b01 : 2'b00;
     else
         {active,vSync} = 2'b00;
 
-wire hSync = 532 <= xPos && xPos < 579;
+wire hSync = 534 <= xPos && xPos < 581;
 
-localparam XMIN=8, XMAX=495, YMIN=18, YMAX=283;
+localparam XMIN=8, XMAX=495, YMIN=18, YMAX=233;
 wire vBars = xPos==XMIN || xPos==XMIN+10 || xPos==XMAX-10 || xPos==XMAX;
 wire hBars = yPos==YMIN || yPos==YMIN+10 || yPos==YMAX-10 || yPos==YMAX;
 wire vTest = vBars && YMIN <= yPos && yPos <= YMAX;
 wire hTest = hBars && XMIN <= xPos && xPos <= XMAX;
 
-reg [7:0] vData, vShift, vMem [512*288/8];  // 18 KB
+reg [7:0] vData, vShift, vMem [512*256/8];  // 16 KB
 reg [14:0] vAddr;
 
 // delay by one cycle to perform the video ram fetch
