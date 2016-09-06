@@ -12,6 +12,11 @@ always @(posedge clk) begin
 end
 wire pixClk = clkDiv == 0;
 
+reg [2:0] pixDiv;
+always @(posedge clk)
+    pixDiv <= pixDiv + 3'd1;
+wire fetchClk = pixDiv == 0;
+
 reg [9:0] xPos;
 reg [8:0] yPos;
 always @(posedge clk)
@@ -34,19 +39,24 @@ always @(*)
     else if (yPos < 290)
         {active,vSync} = 2'b01;
     else if (yPos == 290)
-        {active,vSync} = xPos < 320 ? 2'b01 : 2'b00;
+        {active,vSync} = xPos < 532-320 ? 2'b01 : 2'b00;
     else
         {active,vSync} = 2'b00;
 
-wire hSync = 533 <= xPos && xPos < 580;
+wire hSync = 532 <= xPos && xPos < 579;
 
-// delay by one pixClk cycle to perform the video ram fetch
+localparam XMIN=8, XMAX=495, YMIN=18, YMAX=283;
+wire vBars = xPos==XMIN || xPos==XMIN+10 || xPos==XMAX-10 || xPos==XMAX;
+wire hBars = yPos==YMIN || yPos==YMIN+10 || yPos==YMAX-10 || yPos==YMAX;
+wire vCut = vBars && YMIN <= yPos && yPos <= YMAX;
+wire hCut = hBars && XMIN <= xPos && xPos <= XMAX;
+
+// delay by one cycle to perform the video ram fetch
 reg active_d, vout_d, sync_d;
 always @(posedge clk)
-    if (pixClk) begin
+    if (fetchClk) begin
         active_d = active;
-        vout_d <= xPos == 3 || xPos == 13 || xPos == 486 || xPos == 496 ||
-                  yPos == 17 || yPos == 27 || yPos == 276 || yPos == 286;
+        vout_d <= vCut || hCut;
         sync_d <= vSync || hSync;
     end
 
