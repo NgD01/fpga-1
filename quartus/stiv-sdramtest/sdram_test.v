@@ -34,11 +34,11 @@ parameter   WRITE  =  3'b010;
 parameter   READ   =  3'b100;
 
 parameter  div_400us = 15'd25000; // delay number,for initialization of sdram
-parameter  sdram_addr_num = 24'b0; // row col bank: 13+9+2
+parameter  sdram_addr_num = 22'b0; // row col bank: 11+9+2
 parameter  sdram_data_w_num = 16'b1111000001010101; // f055
 
 reg          sdram_req;
-reg  [23:0]  sdram_addr;
+reg  [21:0]  sdram_addr;
 reg          sdram_rh_wl;
 reg  [15:0]  sdram_data_w;
 reg  [2:0]   current_state;
@@ -105,12 +105,12 @@ always @(posedge clk or negedge reset_l)
         sdram_addr<=0;
         sdram_data_w<=0;
     end else if (current_state == WRITE) begin
-        sdram_addr   <=sdram_addr_num;
-        sdram_data_w <=sdram_data_w_num;
+        sdram_addr <= sdram_addr_num;
+        sdram_data_w <= sdram_data_w_num;
         sdram_req    <= wr_en;
-        sdram_rh_wl  <=1'b0;
+        sdram_rh_wl  <= 1'b0;
     end else if (current_state == READ) begin
-        sdram_rh_wl  <=1'b1;
+        sdram_rh_wl  <= 1'b1;
         sdram_req    <= rd_en;
     end
 
@@ -118,7 +118,7 @@ always @(posedge clk or negedge reset_l)
     if (!reset_l)
         sdram_data_r_lock <=16'b0;
     else if (sdram_ack == 1'b1 && sdram_rh_wl == 1'b1)
-        sdram_data_r_lock <=sdram_data_r;
+        sdram_data_r_lock <= sdram_data_r;
 
 always @(posedge clk or negedge reset_l)
     if (!reset_l)
