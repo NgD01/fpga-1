@@ -197,7 +197,7 @@ always @(posedge clk or negedge reset_l)
             poweron_wait_cnt <= 16'b0;
     end
 
-// auto refresh control
+// auto refresh count
 always @(posedge clk or negedge reset_l)
     if (reset_l == 1'b0) begin
         auto_refresh_cnt <= 16'b0;
@@ -213,7 +213,7 @@ always @(posedge clk or negedge reset_l)
             auto_refresh <= 1'b0;
     end
 
-// status running control
+// status running count
 always @(posedge clk or negedge reset_l)
     if (reset_l == 1'b0)
         status_running_cnt <= 4'b0;
@@ -291,7 +291,7 @@ always @(posedge clk or negedge reset_l) begin
                 if (status_running_cnt == 4'd0) begin
                     sdram_cmd <= 4'b0101;
                     zs_addr <= sdram_addr[COL_WIDTH-1:0];
-                end else if (status_running_cnt == 4'd3) begin
+                end else if (status_running_cnt >= 4'd3) begin
                     read_done <= 1'b1;
                     sdram_data_r_en <= 1'b1;
                     sdram_data_r <= zs_dq_i;
@@ -302,7 +302,7 @@ always @(posedge clk or negedge reset_l) begin
                     sdram_cmd <= 4'b0100;
                     zs_addr <= sdram_addr[COL_WIDTH-1:0];
                     zs_dq_o <= sdram_data_w;
-                end else if (status_running_cnt == 4'd1)
+                end else if (status_running_cnt >= 4'd1)
                     write_done <= 1'b1;
             end
             stat_idle: begin
