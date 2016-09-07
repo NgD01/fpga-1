@@ -63,63 +63,52 @@ wire                             sdram_ack         ;
 wire                             rd_en             ;
 wire                             wr_en             ;
 
-always @(posedge clk or negedge reset_l) begin
-    if (!reset_l) begin
+always @(posedge clk or negedge reset_l)
+    if (!reset_l)
         current_state<=IDLE;
-    end else begin
+    else
         current_state <= next_state;
-    end
-end
 
-always @(posedge clk or negedge reset_l) begin
+always @(posedge clk or negedge reset_l)
     if (!reset_l)
         init_wait_cnt<=15'b0;
     else if ( init_wait_cnt<= ( div_400us-1 ))
         init_wait_cnt<=init_wait_cnt+1;
-end
 
-always @(posedge clk or negedge reset_l) begin
+always @(posedge clk or negedge reset_l)
     if (!reset_l)
         wr_cnt <= 8'b0;
     else if ( current_state == WRITE && wr_cnt < 8'd250  )
         wr_cnt <= wr_cnt + 8'b1;
-end
 
-always @(*) begin
+always @(*)
     case(current_state)
-        IDLE: begin
-            if (init_wait_cnt>= (div_400us-1)) begin
+        IDLE:
+            if (init_wait_cnt>= (div_400us-1))
                 next_state=WRITE;
-            end
-            else begin
+            else
                 next_state=IDLE;
-            end
-        end
-        WRITE: begin
-            if (wr_cnt == 8'd250) begin
+        WRITE:
+            if (wr_cnt == 8'd250)
                 next_state=READ;
-            end else begin
+            else
                 next_state=WRITE;
-            end
-        end
-
-        READ: next_state=READ;
+        READ:
+            next_state=READ;
    endcase
-end
 
-always @(posedge clk or negedge reset_l) begin
-    //delay button's signal ,make this stable
+// delay button's signal ,make this stable
+always @(posedge clk or negedge reset_l)
     if (!reset_l)
         current_state_dly1 <=3'b0;
     else
         current_state_dly1<=current_state;
-end
 
 assign wr_en =  ( current_state == WRITE ) & ( current_state_dly1 != WRITE ) ;
 
 assign rd_en =  ( current_state == READ ) & ( current_state_dly1 != READ ) ;
 
-always @(posedge clk or negedge reset_l) begin
+always @(posedge clk or negedge reset_l)
     if (!reset_l) begin
         sdram_rh_wl<=1'b1;
         sdram_req<=1'b0;
@@ -127,36 +116,31 @@ always @(posedge clk or negedge reset_l) begin
         sdram_ack_1<=1'b0;
         sdram_addr<=0;
         sdram_data_w<=0;
-    end else begin
-        if ( current_state == WRITE) begin
-            sdram_data_r_en_1<=sdram_data_r_en;
-            sdram_ack_1<=sdram_ack;
-            sdram_addr   <=sdram_addr_num;
-            sdram_data_w <=sdram_data_w_num;
-            sdram_req    <= wr_en;
-            sdram_rh_wl  <=1'b0;
-        end else if ( current_state == READ) begin
-            sdram_rh_wl  <=1'b1;
-            sdram_req    <= rd_en;
-            sdram_data_r_en_1<=sdram_data_r_en;
-            sdram_ack_1<=sdram_ack;
-        end
+    end else if ( current_state == WRITE) begin
+        sdram_data_r_en_1<=sdram_data_r_en;
+        sdram_ack_1<=sdram_ack;
+        sdram_addr   <=sdram_addr_num;
+        sdram_data_w <=sdram_data_w_num;
+        sdram_req    <= wr_en;
+        sdram_rh_wl  <=1'b0;
+    end else if ( current_state == READ) begin
+        sdram_rh_wl  <=1'b1;
+        sdram_req    <= rd_en;
+        sdram_data_r_en_1<=sdram_data_r_en;
+        sdram_ack_1<=sdram_ack;
     end
-end
 
-always @(posedge clk or negedge reset_l) begin
+always @(posedge clk or negedge reset_l)
     if (!reset_l)
         sdram_data_r_lock <=16'b0;
     else if ( sdram_ack == 1'b1 && sdram_rh_wl == 1'b1 )
         sdram_data_r_lock <=sdram_data_r;
-end
 
-always @(posedge clk or negedge reset_l) begin
+always @(posedge clk or negedge reset_l)
     if (!reset_l)
         led <=8'b0;
     else if ( sdram_data_r_lock == sdram_data_w  )
         led <=8'h55;
-end
 
 sdram_ctrl u_sdram_ctrl (
     .clk             (clk),

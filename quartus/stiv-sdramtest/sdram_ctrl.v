@@ -119,173 +119,133 @@ reg             write_done;
 reg   [15:0]    poweron_wait_cnt;
 reg   [3:0]     status_running_cnt;
 
-always @(negedge reset_l or posedge clk) begin
-    if(reset_l == 1'b0)
+always @(negedge reset_l or posedge clk)
+    if (reset_l == 1'b0)
         CUR_STATE <= stat_poweron_wait ;
     else
         CUR_STATE <= NEXT_STATE;
-end
 
 always @(*) begin
     NEXT_STATE <= stat_idle;
     case (CUR_STATE)
-        stat_poweron_wait : begin
-            if(poweron_wait_ok == 1'b1) begin
+        stat_poweron_wait :
+            if (poweron_wait_ok == 1'b1)
                 NEXT_STATE <= stat_precharge;
-            end
-            else begin
+            else
                 NEXT_STATE <= stat_poweron_wait;
-            end
-        end
-        stat_precharge :  begin
-            if(precharge_done == 1'b1) begin
-                    if(init_ok == 1'b1) begin
-                        NEXT_STATE <= stat_idle;
-                    end
-                    else begin
-                        NEXT_STATE <= stat_refresh;
-                    end
-            end else begin
-                    NEXT_STATE <= stat_precharge;
-            end
-        end
-        stat_refresh :  begin
-            if(refresh_done == 1'b1) begin
-                if(init_ok == 1'b1) begin
+        stat_precharge :
+            if (precharge_done == 1'b1)
+                if (init_ok == 1'b1)
                     NEXT_STATE <= stat_idle;
-                end
-                else begin
-                    NEXT_STATE <= stat_mrs;
-                end
-            end
-            else begin
+                else
                     NEXT_STATE <= stat_refresh;
-            end
-        end
-        stat_mrs :  begin
-            if(mrs_done == 1'b1) begin
+            else
+                    NEXT_STATE <= stat_precharge;
+        stat_refresh :
+            if (refresh_done == 1'b1)
+                if (init_ok == 1'b1)
                     NEXT_STATE <= stat_idle;
-            end
-            else begin
+                else
                     NEXT_STATE <= stat_mrs;
-            end
-        end
+            else
+                NEXT_STATE <= stat_refresh;
+        stat_mrs :
+            if (mrs_done == 1'b1)
+                NEXT_STATE <= stat_idle;
+            else
+                NEXT_STATE <= stat_mrs;
         stat_idle :  begin
-            if(auto_refresh == 1'b1) begin
-            NEXT_STATE <= stat_refresh;
-            end else if(sdram_req == 1'b1) begin
-                    NEXT_STATE <= stat_active_row;
-            end
-            else begin
-                    NEXT_STATE <= stat_idle;
-            end
+            if (auto_refresh == 1'b1)
+                NEXT_STATE <= stat_refresh;
+            else if (sdram_req == 1'b1)
+                NEXT_STATE <= stat_active_row;
+            else
+                NEXT_STATE <= stat_idle;
         end
-        stat_active_row :  begin
-            if(active_row_done == 1'b1) begin
-                if(sdram_rh_wl == 1'b1) begin
-                        NEXT_STATE <= stat_read;
-                    end
-                    else begin
-                        NEXT_STATE <= stat_write;
-                    end
-            end
-            else begin
-                    NEXT_STATE <= stat_active_row;
-            end
-        end
-        stat_read :  begin
-            if(read_done == 1'b1) begin
-                    NEXT_STATE <= stat_precharge;
-            end
-            else begin
+        stat_active_row :
+            if (active_row_done == 1'b1)
+                if (sdram_rh_wl == 1'b1)
                     NEXT_STATE <= stat_read;
-            end
-        end
-        stat_write :  begin
-            if(write_done == 1'b1) begin
-                    NEXT_STATE <= stat_precharge;
-            end
-            else begin
+                else
                     NEXT_STATE <= stat_write;
-            end
-        end
-        default : begin
+            else
+                    NEXT_STATE <= stat_active_row;
+        stat_read :
+            if (read_done == 1'b1)
+                NEXT_STATE <= stat_precharge;
+            else
+                NEXT_STATE <= stat_read;
+        stat_write :
+            if (write_done == 1'b1)
+                NEXT_STATE <= stat_precharge;
+            else
+                NEXT_STATE <= stat_write;
+        default :
             NEXT_STATE <= stat_idle ;
-        end
     endcase
 end
 
 //sdram acknology control
-always @ ( negedge reset_l or posedge clk ) begin
-    if(reset_l == 1'b0) begin
+always @ ( negedge reset_l or posedge clk )
+    if (reset_l == 1'b0)
         sdram_ack <= 1'b0;
-    end else begin
+    else begin
         sdram_ack <= 1'b0;
-        if(CUR_STATE == stat_active_row) begin
+        if (CUR_STATE == stat_active_row)
             sdram_ack <= 1'b1;
-        end else if(sdram_req == 1'b1) begin
+        else if (sdram_req == 1'b1)
             sdram_ack <= 1'b0;
-        end
     end
-end
 
 //stat_poweron_wait
-always @ ( negedge reset_l or posedge clk ) begin
-    if(reset_l == 1'b0) begin
+always @ ( negedge reset_l or posedge clk )
+    if (reset_l == 1'b0) begin
         poweron_wait_cnt <= 16'b0;
         poweron_wait_ok <= 1'b0;
     end else begin
         poweron_wait_ok <= 1'b0;
-        if(CUR_STATE == stat_poweron_wait) begin
-            if(poweron_wait_cnt >= POWERON_WAIT_CYCLE) begin
+        if (CUR_STATE == stat_poweron_wait)
+            if (poweron_wait_cnt >= POWERON_WAIT_CYCLE)
                 poweron_wait_ok <= 1'b1;
-            end else begin
+            else
                 poweron_wait_cnt <= poweron_wait_cnt + 1;
-            end
-        end else begin
+        else
             poweron_wait_cnt <= 16'b0;
-        end
     end
-end
 
 //auto refresh control
-always @ ( negedge reset_l or posedge clk ) begin
-    if(reset_l == 1'b0) begin
+always @ ( negedge reset_l or posedge clk )
+    if (reset_l == 1'b0) begin
         auto_refresh_cnt <= 16'b0;
         auto_refresh <= 1'b0;
     end else begin
-        if(auto_refresh == 1'b0) begin
+        if (auto_refresh == 1'b0)
             auto_refresh_cnt <= auto_refresh_cnt + 1;
-        end else begin
+        else
             auto_refresh_cnt <= 16'b0;
-        end
-        if(auto_refresh_cnt >= AUTO_REFRESH_CYCLE) begin
+        if (auto_refresh_cnt >= AUTO_REFRESH_CYCLE)
             auto_refresh <= 1'b1;
-        end else if(CUR_STATE == stat_refresh) begin
+        else if (CUR_STATE == stat_refresh)
             auto_refresh <= 1'b0;
-        end
     end
-end
 
 //status running control
-always @ ( negedge reset_l or posedge clk ) begin
-    if(reset_l == 1'b0) begin
+always @ ( negedge reset_l or posedge clk )
+    if (reset_l == 1'b0)
         status_running_cnt <= 4'b0;
-    end else begin
-        if(precharge_done || refresh_done || mrs_done || active_row_done || read_done || write_done) begin
-            status_running_cnt <= 4'b0;
-        end else if(CUR_STATE == stat_precharge || CUR_STATE == stat_refresh || CUR_STATE == stat_mrs
-        || CUR_STATE == stat_active_row || CUR_STATE == stat_read || CUR_STATE == stat_write) begin
-            status_running_cnt <= status_running_cnt + 4'b1;
-        end else begin
-            status_running_cnt <= 4'b0;
-        end
-    end
-end
+    else if (precharge_done || refresh_done || mrs_done ||
+             active_row_done || read_done || write_done)
+        status_running_cnt <= 4'b0;
+    else if (CUR_STATE == stat_precharge || CUR_STATE == stat_refresh ||
+             CUR_STATE == stat_mrs || CUR_STATE == stat_active_row ||
+             CUR_STATE == stat_read || CUR_STATE == stat_write)
+        status_running_cnt <= status_running_cnt + 4'b1;
+    else
+        status_running_cnt <= 4'b0;
 
 //other status control
 always @ ( negedge reset_l or posedge clk ) begin
-    if(reset_l == 1'b0) begin
+    if (reset_l == 1'b0) begin
         sdram_cmd <= {4{1'b1}};
         zs_ba <= {BANK_ADDR_WIDTH{1'b0}};
         zs_addr <= {CHIP_ADDR_WIDTH{1'b0}};
@@ -310,7 +270,8 @@ always @ ( negedge reset_l or posedge clk ) begin
         active_row_done <= 1'b0;
         read_done <= 1'b0;
         write_done <= 1'b0;
-        zs_ba <= sdram_addr[ROW_WIDTH+COL_WIDTH+BANK_ADDR_WIDTH-1:ROW_WIDTH+COL_WIDTH];
+        zs_ba <=
+          sdram_addr[ROW_WIDTH+COL_WIDTH+BANK_ADDR_WIDTH-1:ROW_WIDTH+COL_WIDTH];
         zs_dq_o_en <= 1'b0;
         sdram_data_r_en <= 1'b0;
         case (CUR_STATE)
@@ -320,23 +281,20 @@ always @ ( negedge reset_l or posedge clk ) begin
                 precharge_done <= 1'b1;
             end
             stat_refresh :  begin
-                if(status_running_cnt == 4'b0) begin
+                if (status_running_cnt == 4'b0)
                     sdram_cmd <= 4'b0001;
-                end else begin
+                else
                     sdram_cmd <= 4'b0111;//none operating mode
-                end
-                if(status_running_cnt >= 4'd8) begin
+                if (status_running_cnt >= 4'd8)
                     refresh_done <= 1'b1;
-                end
             end
             stat_mrs :  begin
-                if(status_running_cnt == 4'b0) begin
+                if (status_running_cnt == 4'b0) begin
                     sdram_cmd <= 4'b0000;
                     zs_addr <= {{3{1'b0}},1'b0,2'b00,CAS_LATENCY,4'h0};
-                end else begin
+                end else
                     sdram_cmd <= 4'b0111;//none operating mode
-                end
-                if(status_running_cnt >= 4'd3) begin
+                if (status_running_cnt >= 4'd3) begin
                     mrs_done <= 1'b1;
                     init_ok <= 1'b1;
                 end
@@ -347,11 +305,11 @@ always @ ( negedge reset_l or posedge clk ) begin
                 active_row_done <= 1'b1;
             end
             stat_read : begin
-                if(status_running_cnt == 4'd0) begin
+                if (status_running_cnt == 4'd0) begin
                     sdram_cmd <= 4'b0101;
                     zs_addr <= sdram_addr[COL_WIDTH-1:0];
                 end
-                if(status_running_cnt == 4'd3) begin
+                if (status_running_cnt == 4'd3) begin
                     read_done <= 1'b1;
                     sdram_data_r_en <= 1'b1;
                     sdram_data_r <= zs_dq_i;
@@ -359,14 +317,13 @@ always @ ( negedge reset_l or posedge clk ) begin
             end
             stat_write :    begin
                 zs_dq_o_en <= 1'b1;
-                if(status_running_cnt == 4'd0) begin
+                if (status_running_cnt == 4'd0) begin
                     sdram_cmd <= 4'b0100;
                     zs_addr <= sdram_addr[COL_WIDTH-1:0];
                     zs_dq_o <= sdram_data_w;
                 end
-                if(status_running_cnt == 4'd1) begin
+                if (status_running_cnt == 4'd1)
                     write_done <= 1'b1;
-                end
             end
             stat_idle : begin
                 sdram_cmd <= 4'b1111; //command disable
