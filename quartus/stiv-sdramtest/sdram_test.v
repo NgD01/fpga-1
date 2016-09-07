@@ -14,13 +14,6 @@ module top (
     led
 );
 
-parameter     CHIP_ADDR_WIDTH         =  13;
-parameter     BANK_ADDR_WIDTH         =  2;
-parameter     ROW_WIDTH               =  13;
-parameter     COL_WIDTH               =  9;
-parameter     DATA_WIDTH              =  16;
-parameter     CAS_LATENCY             =  3'b011;
-
 input                           clk          ;
 input                           reset_l      ;
 output                          zs_ck        ;
@@ -30,20 +23,19 @@ output                          zs_ras_n     ;
 output                          zs_cas_n     ;
 output                          zs_we_n      ;
 output       [1:0]              zs_ba        ;
-output       [12:0]             zs_addr      ;
+output       [11:0]             zs_addr      ;
 output       [1:0]              zs_dqm       ;
 inout        [15:0]             zs_dq        ;
 output  reg  [7:0]              led          ;
 
-
-//three state
+// three state
 parameter   IDLE   =  3'b001;
 parameter   WRITE  =  3'b010;
 parameter   READ   =  3'b100;
 
-parameter  div_400us=15'd25000;   //  delay number,for initialization of sdram
-parameter  sdram_addr_num  = 24'b0;   //row col bank: 13+9+2
-parameter  sdram_data_w_num= 16'b1111000001010101;                 //f055
+parameter  div_400us = 15'd25000; // delay number,for initialization of sdram
+parameter  sdram_addr_num = 24'b0; // row col bank: 13+9+2
+parameter  sdram_data_w_num = 16'b1111000001010101; // f055
 
 reg                              sdram_req         ;
 reg        [23:0]                sdram_addr        ;
@@ -72,13 +64,13 @@ always @(posedge clk or negedge reset_l)
 always @(posedge clk or negedge reset_l)
     if (!reset_l)
         init_wait_cnt<=15'b0;
-    else if ( init_wait_cnt<= ( div_400us-1 ))
+    else if (init_wait_cnt<= (div_400us-1))
         init_wait_cnt<=init_wait_cnt+1;
 
 always @(posedge clk or negedge reset_l)
     if (!reset_l)
         wr_cnt <= 8'b0;
-    else if ( current_state == WRITE && wr_cnt < 8'd250  )
+    else if (current_state == WRITE && wr_cnt < 8'd250)
         wr_cnt <= wr_cnt + 8'b1;
 
 always @(*)
@@ -104,9 +96,9 @@ always @(posedge clk or negedge reset_l)
     else
         current_state_dly1<=current_state;
 
-assign wr_en =  ( current_state == WRITE ) & ( current_state_dly1 != WRITE ) ;
+assign wr_en =  (current_state == WRITE) & (current_state_dly1 != WRITE) ;
 
-assign rd_en =  ( current_state == READ ) & ( current_state_dly1 != READ ) ;
+assign rd_en =  (current_state == READ) & (current_state_dly1 != READ) ;
 
 always @(posedge clk or negedge reset_l)
     if (!reset_l) begin
@@ -116,14 +108,14 @@ always @(posedge clk or negedge reset_l)
         sdram_ack_1<=1'b0;
         sdram_addr<=0;
         sdram_data_w<=0;
-    end else if ( current_state == WRITE) begin
+    end else if (current_state == WRITE) begin
         sdram_data_r_en_1<=sdram_data_r_en;
         sdram_ack_1<=sdram_ack;
         sdram_addr   <=sdram_addr_num;
         sdram_data_w <=sdram_data_w_num;
         sdram_req    <= wr_en;
         sdram_rh_wl  <=1'b0;
-    end else if ( current_state == READ) begin
+    end else if (current_state == READ) begin
         sdram_rh_wl  <=1'b1;
         sdram_req    <= rd_en;
         sdram_data_r_en_1<=sdram_data_r_en;
@@ -133,13 +125,13 @@ always @(posedge clk or negedge reset_l)
 always @(posedge clk or negedge reset_l)
     if (!reset_l)
         sdram_data_r_lock <=16'b0;
-    else if ( sdram_ack == 1'b1 && sdram_rh_wl == 1'b1 )
+    else if (sdram_ack == 1'b1 && sdram_rh_wl == 1'b1)
         sdram_data_r_lock <=sdram_data_r;
 
 always @(posedge clk or negedge reset_l)
     if (!reset_l)
         led <=8'b0;
-    else if ( sdram_data_r_lock == sdram_data_w  )
+    else if (sdram_data_r_lock == sdram_data_w)
         led <=8'h55;
 
 sdram_ctrl u_sdram_ctrl (

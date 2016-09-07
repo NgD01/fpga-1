@@ -17,7 +17,7 @@ module sdram_ctrl (
     sdram_rh_wl,
     sdram_data_w,
     sdram_data_r,
-    sdram_data_r_en, //indicate read data valid
+    sdram_data_r_en, // indicate read data valid
     //chip interface
     zs_ck,
     zs_cke,
@@ -31,13 +31,13 @@ module sdram_ctrl (
     zs_dq
 );
 
-parameter     CHIP_ADDR_WIDTH         =  13;
+parameter     CHIP_ADDR_WIDTH         =  11;
 parameter     BANK_ADDR_WIDTH         =  2;
-parameter     ROW_WIDTH               =  13;
-parameter     COL_WIDTH               =  9;
+parameter     ROW_WIDTH               =  12;
+parameter     COL_WIDTH               =  8;
 parameter     DATA_WIDTH              =  16;
 parameter     CAS_LATENCY             =  3'b011;
-//
+
 // auto refresh cycle calculate: each row must be refreshed every 64ms, and just
 // refresh one row each time.  and this chip have 8192 rows, so each refresh
 // interval must less than 64ms/8192= 7.8125us 50Mhz clock should count to:
@@ -68,11 +68,8 @@ output  [CHIP_ADDR_WIDTH-1:0] zs_addr;
 output  [1:0]                 zs_dqm;
 inout   [DATA_WIDTH-1:0]      zs_dq;
 
-wire                          zs_ck;
-assign zs_ck = clk;
-
-wire                          zs_cke;
-assign zs_cke = 1'b1;
+wire                          zs_ck = clk;
+wire                          zs_cke = 1'b1;
 
 wire                          zs_cs_n;
 wire                          zs_ras_n;
@@ -85,6 +82,7 @@ reg     [1:0]                 zs_dqm;
 reg                           zs_dq_o_en;
 reg     [DATA_WIDTH-1:0]      zs_dq_o;
 wire    [DATA_WIDTH-1:0]      zs_dq_i;
+
 assign zs_dq = (zs_dq_o_en==1'b1)?zs_dq_o:{DATA_WIDTH{1'bz}};
 assign zs_dq_i = zs_dq;
 assign {zs_cs_n, zs_ras_n, zs_cas_n, zs_we_n} = sdram_cmd;
@@ -128,12 +126,12 @@ always @(negedge reset_l or posedge clk)
 always @(*) begin
     NEXT_STATE <= stat_idle;
     case (CUR_STATE)
-        stat_poweron_wait :
+        stat_poweron_wait:
             if (poweron_wait_ok == 1'b1)
                 NEXT_STATE <= stat_precharge;
             else
                 NEXT_STATE <= stat_poweron_wait;
-        stat_precharge :
+        stat_precharge:
             if (precharge_done == 1'b1)
                 if (init_ok == 1'b1)
                     NEXT_STATE <= stat_idle;
@@ -141,7 +139,7 @@ always @(*) begin
                     NEXT_STATE <= stat_refresh;
             else
                     NEXT_STATE <= stat_precharge;
-        stat_refresh :
+        stat_refresh:
             if (refresh_done == 1'b1)
                 if (init_ok == 1'b1)
                     NEXT_STATE <= stat_idle;
@@ -149,12 +147,12 @@ always @(*) begin
                     NEXT_STATE <= stat_mrs;
             else
                 NEXT_STATE <= stat_refresh;
-        stat_mrs :
+        stat_mrs:
             if (mrs_done == 1'b1)
                 NEXT_STATE <= stat_idle;
             else
                 NEXT_STATE <= stat_mrs;
-        stat_idle :  begin
+        stat_idle: begin
             if (auto_refresh == 1'b1)
                 NEXT_STATE <= stat_refresh;
             else if (sdram_req == 1'b1)
@@ -162,7 +160,7 @@ always @(*) begin
             else
                 NEXT_STATE <= stat_idle;
         end
-        stat_active_row :
+        stat_active_row:
             if (active_row_done == 1'b1)
                 if (sdram_rh_wl == 1'b1)
                     NEXT_STATE <= stat_read;
@@ -170,23 +168,23 @@ always @(*) begin
                     NEXT_STATE <= stat_write;
             else
                     NEXT_STATE <= stat_active_row;
-        stat_read :
+        stat_read:
             if (read_done == 1'b1)
                 NEXT_STATE <= stat_precharge;
             else
                 NEXT_STATE <= stat_read;
-        stat_write :
+        stat_write:
             if (write_done == 1'b1)
                 NEXT_STATE <= stat_precharge;
             else
                 NEXT_STATE <= stat_write;
-        default :
+        default:
             NEXT_STATE <= stat_idle ;
     endcase
 end
 
-//sdram acknology control
-always @ ( negedge reset_l or posedge clk )
+// sdram acknology control
+always @(negedge reset_l or posedge clk)
     if (reset_l == 1'b0)
         sdram_ack <= 1'b0;
     else begin
@@ -197,8 +195,8 @@ always @ ( negedge reset_l or posedge clk )
             sdram_ack <= 1'b0;
     end
 
-//stat_poweron_wait
-always @ ( negedge reset_l or posedge clk )
+// stat_poweron_wait
+always @(negedge reset_l or posedge clk)
     if (reset_l == 1'b0) begin
         poweron_wait_cnt <= 16'b0;
         poweron_wait_ok <= 1'b0;
@@ -213,8 +211,8 @@ always @ ( negedge reset_l or posedge clk )
             poweron_wait_cnt <= 16'b0;
     end
 
-//auto refresh control
-always @ ( negedge reset_l or posedge clk )
+// auto refresh control
+always @(negedge reset_l or posedge clk)
     if (reset_l == 1'b0) begin
         auto_refresh_cnt <= 16'b0;
         auto_refresh <= 1'b0;
@@ -229,8 +227,8 @@ always @ ( negedge reset_l or posedge clk )
             auto_refresh <= 1'b0;
     end
 
-//status running control
-always @ ( negedge reset_l or posedge clk )
+// status running control
+always @(negedge reset_l or posedge clk)
     if (reset_l == 1'b0)
         status_running_cnt <= 4'b0;
     else if (precharge_done || refresh_done || mrs_done ||
@@ -243,8 +241,8 @@ always @ ( negedge reset_l or posedge clk )
     else
         status_running_cnt <= 4'b0;
 
-//other status control
-always @ ( negedge reset_l or posedge clk ) begin
+// other status control
+always @(negedge reset_l or posedge clk) begin
     if (reset_l == 1'b0) begin
         sdram_cmd <= {4{1'b1}};
         zs_ba <= {BANK_ADDR_WIDTH{1'b0}};
@@ -275,12 +273,12 @@ always @ ( negedge reset_l or posedge clk ) begin
         zs_dq_o_en <= 1'b0;
         sdram_data_r_en <= 1'b0;
         case (CUR_STATE)
-            stat_precharge :    begin
+            stat_precharge: begin
                 sdram_cmd <= 4'b0010;
                 zs_addr[10] <= 1'b1;
                 precharge_done <= 1'b1;
             end
-            stat_refresh :  begin
+            stat_refresh: begin
                 if (status_running_cnt == 4'b0)
                     sdram_cmd <= 4'b0001;
                 else
@@ -288,23 +286,23 @@ always @ ( negedge reset_l or posedge clk ) begin
                 if (status_running_cnt >= 4'd8)
                     refresh_done <= 1'b1;
             end
-            stat_mrs :  begin
+            stat_mrs: begin
                 if (status_running_cnt == 4'b0) begin
                     sdram_cmd <= 4'b0000;
                     zs_addr <= {{3{1'b0}},1'b0,2'b00,CAS_LATENCY,4'h0};
                 end else
-                    sdram_cmd <= 4'b0111;//none operating mode
+                    sdram_cmd <= 4'b0111;// none operating mode
                 if (status_running_cnt >= 4'd3) begin
                     mrs_done <= 1'b1;
                     init_ok <= 1'b1;
                 end
             end
-            stat_active_row :   begin
+            stat_active_row: begin
                 sdram_cmd <= 4'b0011;
                 zs_addr <= sdram_addr[ROW_WIDTH+COL_WIDTH-1:COL_WIDTH];
                 active_row_done <= 1'b1;
             end
-            stat_read : begin
+            stat_read: begin
                 if (status_running_cnt == 4'd0) begin
                     sdram_cmd <= 4'b0101;
                     zs_addr <= sdram_addr[COL_WIDTH-1:0];
@@ -315,7 +313,7 @@ always @ ( negedge reset_l or posedge clk ) begin
                     sdram_data_r <= zs_dq_i;
                 end
             end
-            stat_write :    begin
+            stat_write: begin
                 zs_dq_o_en <= 1'b1;
                 if (status_running_cnt == 4'd0) begin
                     sdram_cmd <= 4'b0100;
@@ -325,11 +323,11 @@ always @ ( negedge reset_l or posedge clk ) begin
                 if (status_running_cnt == 4'd1)
                     write_done <= 1'b1;
             end
-            stat_idle : begin
-                sdram_cmd <= 4'b1111; //command disable
+            stat_idle: begin
+                sdram_cmd <= 4'b1111; // command disable
                 zs_addr <= {CHIP_ADDR_WIDTH{1'b0}};
             end
-            default : ;
+            default: ;
         endcase
     end
 end
