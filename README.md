@@ -1,7 +1,11 @@
 ### Dabbling in the world of FPGAs
 
+[stiv-sdramtest](quartus/stiv-sdramtest/) :
+Adapted from SDRAM code which came with the Storm IV board  
+[stiv-vgaout](quartus/stiv-vgaout/) :
+VGA test ported to the Storm IV board, 8 colours  
 [vgaout](quartus/vgaout/) :
-Generate a 64-colour 640x480 VGA test signal
+Generate a 64-colour 640x480 VGA test signal  
 [tvout](quartus/tvout/) :
 Generate a PAL monochrome composite video out signal  
 [spiSim](quartus/spiSim/) :
