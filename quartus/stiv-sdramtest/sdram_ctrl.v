@@ -1,13 +1,12 @@
+// SDRAM controller - adapted from code accompanying the Storm IV FPGA board.
+// -jcw, 2016-09-07
+//
 // Copyright 2014[c]
-// File name:        sdram_ctrl.v
 // Author:           huaming.huang@link-real.com.cn
 // Date:             2014-02-11 09:58
 // Version Number:   1.0
-// Abstract:         sdram controller
-// 2014-02-11 09:58  version 1.0     xxx
 
-module sdram_ctrl (
-    //input
+module SdramCtrl (
     clk,
     reset_l,
     //client interface
@@ -38,13 +37,13 @@ parameter     COL_WIDTH               =  8;
 parameter     DATA_WIDTH              =  16;
 parameter     CAS_LATENCY             =  3'b011;
 
-// auto refresh cycle calculate: each row must be refreshed every 64ms, and just
-// refresh one row each time.  and this chip have 8192 rows, so each refresh
-// interval must less than 64ms/8192= 7.8125us 50Mhz clock should count to:
-// 7.8125x1000/20 = 390,then have one time refresh
+// Auto refresh cycle calculation: each row must be refreshed every 64ms, and
+// refresh one row each time. Since this chip has 8192 rows, the refresh
+// interval must be less than 64ms/8192 = 7.8125us. The 50Mhz clock should
+// count to 7.8125x1000/20 = 390, then do one refresh.
 
 parameter     AUTO_REFRESH_CYCLE      = 390;
-parameter     POWERON_WAIT_CYCLE      = 10000; // wait 200us,based on 50m clock
+parameter     POWERON_WAIT_CYCLE      = 10000; // 200us, based on 50 MHz clock
 
 input                     clk;
 input                     reset_l;
@@ -183,7 +182,7 @@ always @(*) begin
     endcase
 end
 
-// sdram acknology control
+// sdram acknowledge control
 always @(negedge reset_l or posedge clk)
     if (reset_l == 1'b0)
         sdram_ack <= 1'b0;
@@ -282,7 +281,7 @@ always @(negedge reset_l or posedge clk) begin
                 if (status_running_cnt == 4'b0)
                     sdram_cmd <= 4'b0001;
                 else
-                    sdram_cmd <= 4'b0111;//none operating mode
+                    sdram_cmd <= 4'b0111; // noop operating mode
                 if (status_running_cnt >= 4'd8)
                     refresh_done <= 1'b1;
             end
@@ -291,7 +290,7 @@ always @(negedge reset_l or posedge clk) begin
                     sdram_cmd <= 4'b0000;
                     zs_addr <= {{3{1'b0}},1'b0,2'b00,CAS_LATENCY,4'h0};
                 end else
-                    sdram_cmd <= 4'b0111;// none operating mode
+                    sdram_cmd <= 4'b0111; // noop operating mode
                 if (status_running_cnt >= 4'd3) begin
                     mrs_done <= 1'b1;
                     init_ok <= 1'b1;

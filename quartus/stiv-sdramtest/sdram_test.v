@@ -134,7 +134,7 @@ always @(posedge clk or negedge reset_l)
     else if (sdram_data_r_lock == sdram_data_w)
         led <=8'h55;
 
-sdram_ctrl u_sdram_ctrl (
+SdramCtrl u_sdram_ctrl (
     .clk             (clk),
     .reset_l         (reset_l),
 
