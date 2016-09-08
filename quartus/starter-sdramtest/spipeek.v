@@ -8,8 +8,8 @@ module SpiPeek (
     output ucMISO,
     input ucSEL_,
     // the data bits to be read and written
-    input [64-1:0] data_in,
-    output reg [64-1:0] data_out
+    input [PEEK_BITS-1:0] data_in,
+    output reg [PEEK_BITS-1:0] data_out
 );
 
 parameter PEEK_BITS = 64;
