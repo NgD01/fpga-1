@@ -1,0 +1,161 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2016 Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera MegaCore Function License Agreement, or other 
+# applicable license agreement, including, without limitation, 
+# that your use is for the sole purpose of programming logic 
+# devices manufactured by Altera and sold by Altera or its 
+# authorized distributors.  Please refer to the applicable 
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 16.0.2 Build 222 07/20/2016 SJ Lite Edition
+# Date created = 12:25:29  september 07, 2016
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		top_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+
+# Project-Wide Assignments
+# ========================
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.0.2
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:55:21  SEPTEMBER 05, 2016"
+set_global_assignment -name LAST_QUARTUS_VERSION 16.0.2
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name VERILOG_FILE sdram_test.v
+set_global_assignment -name VERILOG_FILE sdram_ctrl.v
+set_global_assignment -name CDF_FILE top.cdf
+set_global_assignment -name SDC_FILE top.sdc
+
+# Pin & Location Assignments
+# ==========================
+set_location_assignment PIN_91 -to clk
+set_location_assignment PIN_64 -to zs_addr[11]
+set_location_assignment PIN_76 -to zs_addr[10]
+set_location_assignment PIN_65 -to zs_addr[9]
+set_location_assignment PIN_66 -to zs_addr[8]
+set_location_assignment PIN_67 -to zs_addr[7]
+set_location_assignment PIN_68 -to zs_addr[6]
+set_location_assignment PIN_69 -to zs_addr[5]
+set_location_assignment PIN_70 -to zs_addr[4]
+set_location_assignment PIN_84 -to zs_addr[3]
+set_location_assignment PIN_83 -to zs_addr[2]
+set_location_assignment PIN_80 -to zs_addr[1]
+set_location_assignment PIN_77 -to zs_addr[0]
+set_location_assignment PIN_44 -to zs_dq[15]
+set_location_assignment PIN_46 -to zs_dq[14]
+set_location_assignment PIN_49 -to zs_dq[13]
+set_location_assignment PIN_50 -to zs_dq[12]
+set_location_assignment PIN_51 -to zs_dq[11]
+set_location_assignment PIN_52 -to zs_dq[10]
+set_location_assignment PIN_53 -to zs_dq[9]
+set_location_assignment PIN_54 -to zs_dq[8]
+set_location_assignment PIN_39 -to zs_dq[7]
+set_location_assignment PIN_38 -to zs_dq[6]
+set_location_assignment PIN_34 -to zs_dq[5]
+set_location_assignment PIN_33 -to zs_dq[4]
+set_location_assignment PIN_32 -to zs_dq[3]
+set_location_assignment PIN_31 -to zs_dq[2]
+set_location_assignment PIN_30 -to zs_dq[1]
+set_location_assignment PIN_28 -to zs_dq[0]
+set_location_assignment PIN_55 -to zs_dqm[1]
+set_location_assignment PIN_42 -to zs_dqm[0]
+set_location_assignment PIN_72 -to zs_ras_n
+set_location_assignment PIN_43 -to zs_we_n
+set_location_assignment PIN_73 -to zs_cs_n
+set_location_assignment PIN_59 -to zs_cke
+set_location_assignment PIN_71 -to zs_cas_n
+set_location_assignment PIN_74 -to zs_ba[0]
+set_location_assignment PIN_75 -to zs_ba[1]
+set_location_assignment PIN_58 -to zs_ck
+set_location_assignment PIN_7 -to led[0]
+set_location_assignment PIN_3 -to led[1]
+set_location_assignment PIN_2 -to led[2]
+set_location_assignment PIN_141 -to led[7]
+set_location_assignment PIN_142 -to led[6]
+set_location_assignment PIN_143 -to led[5]
+set_location_assignment PIN_144 -to led[4]
+set_location_assignment PIN_1 -to led[3]
+
+# Classic Timing Assignments
+# ==========================
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
+
+# Analysis & Synthesis Assignments
+# ================================
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name TOP_LEVEL_ENTITY top
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+
+# Fitter Assignments
+# ==================
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+
+# EDA Netlist Writer Assignments
+# ==============================
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+
+# Power Estimation Assignments
+# ============================
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+
+# start EDA_TOOL_SETTINGS(eda_simulation)
+# ---------------------------------------
+
+	# EDA Netlist Writer Assignments
+	# ==============================
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+	set_global_assignment -name EDA_OUTPUT_DATA_FORMAT NONE -section_id eda_simulation
+
+# end EDA_TOOL_SETTINGS(eda_simulation)
+# -------------------------------------
+
+# -----------------
+# start ENTITY(top)
+
+	# start DESIGN_PARTITION(Top)
+	# ---------------------------
+
+		# Incremental Compilation Assignments
+		# ===================================
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+	# end DESIGN_PARTITION(Top)
+	# -------------------------
+
+# end ENTITY(top)
+# ---------------
+
+set_location_assignment PIN_60 -to zs_addr[12]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to zs_addr[12]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to zs_addr
+set_location_assignment PIN_25 -to reset
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
