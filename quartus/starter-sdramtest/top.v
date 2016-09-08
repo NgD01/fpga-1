@@ -35,18 +35,15 @@ wire [63:0] ins = {
     sdram_data_r_en,    // 62
     14'b0,
     sdram_data_r,       // 47:32
-    32'b0
+    32'b1
 };
 
-wire [63:0] outs = {
-    sdram_req,          // 63
-    sdram_rh_wl,        // 62
-    6'b0,
-    led,                // 55:48
-    sdram_data_w,       // 47:32
-    8'b0,
-    sdram_addr          // 23:0
-};
+wire [63:0] outs;
+assign sdram_req    = outs[63];
+assign sdram_rh_wl  = outs[62];
+assign led          = outs[55:48];
+assign sdram_data_w = outs[47:32];
+assign sdram_addr   = outs[23:0];
 
 SpiPeek U0 (
     .clk(clk),
