@@ -17,3 +17,22 @@ spi-init
 \ verify that data comes back when loopback is set
 depth . $01234567 $89ABCDEF >fpga> swap hex. hex. depth .
 depth . $00FF0000 $12345678 >fpga> swap hex. hex. depth .
+
+31 bit constant SD.REQ
+30 bit constant SD.WRn
+
+0 variable sd-w
+0 variable sd-a
+
+: sd-cycle ( data addr -- u )
+  2over                >fpga> 2drop
+  over SD.REQ or over  >fpga> 2drop
+                       >fpga> drop ;
+
+: >sd ( data addr -- )  sd-cycle drop ;
+: sd> ( addr -- data )  SD.WRn swap sd-cycle ;
+
+$1234 $543210 >sd  $543210 sd> hex.
+$0123 $054321 >sd  $054321 sd> hex.
+           100 ms  $543210 sd> hex.
+           100 ms  $054321 sd> hex.
