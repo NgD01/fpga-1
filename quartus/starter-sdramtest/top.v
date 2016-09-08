@@ -21,11 +21,11 @@ module top (
     output [7:0] led
 );
 
-reg          sdram_req;
-reg  [23:0]  sdram_addr;
-reg          sdram_rh_wl;
-reg  [15:0]  sdram_data_w;
-reg  [15:0]  sdram_data_r_lock;
+wire         sdram_req;
+wire [23:0]  sdram_addr;
+wire         sdram_rh_wl;
+wire [15:0]  sdram_data_w;
+wire [15:0]  sdram_data_r_lock;
 wire [15:0]  sdram_data_r;
 wire         sdram_data_r_en;
 wire         sdram_ack;
