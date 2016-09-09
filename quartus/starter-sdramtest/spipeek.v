@@ -15,12 +15,11 @@ module SpiPeek (
 parameter WIDTH = 64;
 
 // sync ucSCLK to the FPGA clock using a 3-bits shift register
-reg [2:0] SCLKr; always @(posedge clk) SCLKr <= {SCLKr[1:0],ucSCLK};
+reg [2:0] SCLKr; always @(posedge clk) SCLKr <= {SCLKr[1:0],ucSCLK&~ucSEL_};
 wire SCLK_rising = SCLKr[2:1] == 2'b01;     // detect ucSCLK rising edges
 
 // same thing for ucSEL_
 reg [2:0] SSELr; always @(posedge clk) SSELr <= {SSELr[1:0],ucSEL_};
-wire SSEL_active = ~SSELr[2];               // ucSEL_ is active low
 wire SSEL_start = SSELr[2:1] == 2'b10;      // start on falling edge
 wire SSEL_end = SSELr[2:1] == 2'b01;        // stop on rising edge
 
@@ -32,7 +31,7 @@ reg [WIDTH-1:0] shifter;
 always @(posedge clk) begin
     if (SSEL_start)
         shifter <= data_in;
-    if (SSEL_active && SCLK_rising) // rotate left, i.e. MSB out and LSB in
+    if (SCLK_rising) // rotate left, i.e. MSB out and LSB in
         shifter <= {shifter[WIDTH-2:0],MOSI_data};
     if (SSEL_end)
         data_out <= shifter;
