@@ -29,19 +29,20 @@ wire SSEL_end = SSELr[2:1] == 2'b01;        // stop on rising edge
 reg [1:0] MOSIr; always @(posedge clk) MOSIr <= {MOSIr[0],ucMOSI};
 wire MOSI_data = MOSIr[1];
 
-reg [PEEK_BITS-1:0] incoming, outgoing;
+reg incoming;
+reg [PEEK_BITS-1:0] outgoing;
 always @(posedge clk) begin
     if (SSEL_start)
         outgoing <= data_in;
 
     if (SSEL_end)
-        data_out <= incoming;
+        data_out <= outgoing;
 
     if (SSEL_active) begin
         if (SCLK_rising) // shift in from the right
-            incoming <= {incoming[PEEK_BITS-2:0],MOSI_data};
+            incoming <= MOSI_data;
         if (SCLK_falling) // shift out from the left
-            outgoing <= {outgoing[PEEK_BITS-2:0],1'b0};
+            outgoing <= {outgoing[PEEK_BITS-2:0],incoming};
     end
 end
 
