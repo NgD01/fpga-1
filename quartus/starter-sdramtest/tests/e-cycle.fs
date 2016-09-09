@@ -48,7 +48,7 @@ sd-timer
 
 : fill-ram ( leds -- )
   test-range do
-    i 1+ $FFFF and  i >sd
+    i 3 * $FFFF and  i >sd
   loop ;
 
 : zero-check ( leds -- )
@@ -58,7 +58,7 @@ sd-timer
 
 : fill-check ( leds -- )
   test-range do
-    i sd>  i 1+ - $FFFF and  if cr i hex. i sd> hex. ." ?" then
+    i sd>  i 3 * - $FFFF and  if cr i hex. i sd> hex. ." ?" then
   loop ;
 
 : test
