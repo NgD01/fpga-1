@@ -2,7 +2,6 @@
 
 spi-init
 
-  %0000000001011100 SPI1-CR1 !  \ clk/16, i.e. 4.5 MHz, master
 \ %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
 
 : >f32> ( u -- u )
@@ -34,7 +33,7 @@ $0123 $054321 >sd  $054321 sd> hex.
            100 ms  $543210 sd> hex.
            100 ms  $054321 sd> hex.
 
-: sd-timer micros $543210 sd> drop micros swap - . ;  \ should take about 46 µs
+: sd-timer micros $543210 sd> drop micros swap - . ;  \ about 34 µs @ 9 MHz
 sd-timer
 
 24 bit constant TEST-SIZE  \ 22 = 4Mx16 (64 Mbit), 24 = 16Mx16 (256 Mbit)
@@ -73,5 +72,5 @@ sd-timer
   key? until  drop ;
 
 \ now launch tests manually - if everything is ok, the LEDs will show a counter
-\ this is very slow: for 4M, each step takes about 3 min, 12 min per full cycle
-\ the test is successful if the LEDs count is 4 or more with no serial messages
+\ this is very slow: for 4M, each step takes about 2 min - 8 min per full cycle
+\ the test is successful if the LED count is 4 or more, with no serial messages

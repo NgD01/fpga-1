@@ -2,7 +2,6 @@
 
 spi-init
 
-  %0000000001011100 SPI1-CR1 !  \ clk/16, i.e. 4.5 MHz, master
 \ %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
 
 : >f32> ( u -- u )
@@ -34,5 +33,5 @@ $0123 $054321 >sd  $054321 sd> hex.
            100 ms  $543210 sd> hex.
            100 ms  $054321 sd> hex.
 
-: sd-timer micros $543210 sd> drop micros swap - . ;  \ should take about 46 µs
+: sd-timer micros $543210 sd> drop micros swap - . ;  \ about 34 µs @ 9 MHz
 sd-timer
