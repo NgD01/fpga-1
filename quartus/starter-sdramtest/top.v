@@ -41,8 +41,8 @@ wire [63:0] ins = {
 wire [63:0] outs;
 assign sdram_req    = outs[63];
 assign sdram_rh_wl  = outs[62];
-assign led          = outs[55:48];
 assign sdram_data_w = outs[47:32];
+assign led          = outs[31:24];
 assign sdram_addr   = outs[23:0];
 
 SpiPeek U0 (
