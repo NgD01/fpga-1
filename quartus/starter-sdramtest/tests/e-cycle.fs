@@ -40,6 +40,7 @@ sd-timer
 24 bit constant TEST-SIZE  \ 22 = 4Mx16 (64 Mbit), 24 = 16Mx16 (256 Mbit)
 
 : test-range ( leds -- hi lo )  24 lshift  dup TEST-SIZE or  swap ;
+: test-value ( n -- u )  211 * 8 rshift $FFFF and ;
 
 : zero-ram ( leds -- )
   test-range do
@@ -48,7 +49,7 @@ sd-timer
 
 : fill-ram ( leds -- )
   test-range do
-    i 3 * $FFFF and  i >sd
+    i test-value  i >sd
   loop ;
 
 : zero-check ( leds -- )
@@ -58,17 +59,17 @@ sd-timer
 
 : fill-check ( leds -- )
   test-range do
-    i sd>  i 3 * - $FFFF and  if cr i hex. i sd> hex. ." ?" then
+    i sd>  i test-value - $FFFF and  if cr i hex. i sd> hex. ." ?" then
   loop ;
 
 : test
   0  begin
-    dup zero-ram    1+
-    100 ms
-    dup zero-check  1+
     dup fill-ram    1+
-    1000 ms
+    100 ms
     dup fill-check  1+
+    dup zero-ram    1+
+    1000 ms
+    dup zero-check  1+
   key? until  drop ;
 
 \ now launch tests manually - if everything is ok, the LEDs will show a counter
