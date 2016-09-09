@@ -80,14 +80,14 @@ reg [DATA_WIDTH-1:0] sdram_data_r;
 reg                  sdram_data_r_en;
 reg                  sdram_ack;
 
-parameter stat_poweron_wait = 8'b00000001;
-parameter stat_precharge    = 8'b00000010;
-parameter stat_refresh      = 8'b00000100;
-parameter stat_mrs          = 8'b00001000;
-parameter stat_idle         = 8'b00010000;
-parameter stat_active_row   = 8'b00100000;
-parameter stat_read         = 8'b01000000;
-parameter stat_write        = 8'b10000000;
+localparam stat_poweron_wait = 8'b00000001;
+localparam stat_precharge    = 8'b00000010;
+localparam stat_refresh      = 8'b00000100;
+localparam stat_mrs          = 8'b00001000;
+localparam stat_idle         = 8'b00010000;
+localparam stat_active_row   = 8'b00100000;
+localparam stat_read         = 8'b01000000;
+localparam stat_write        = 8'b10000000;
 
 reg [7:0]  CUR_STATE;
 reg [7:0]  NEXT_STATE;

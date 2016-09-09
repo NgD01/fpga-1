@@ -8,11 +8,11 @@ module SpiPeek (
     output ucMISO,
     input ucSEL_,
     // the data bits to be read and written
-    input [PEEK_BITS-1:0] data_in,
-    output reg [PEEK_BITS-1:0] data_out
+    input [WIDTH-1:0] data_in,
+    output reg [WIDTH-1:0] data_out
 );
 
-parameter PEEK_BITS = 64;
+parameter WIDTH = 64;
 
 // sync ucSCLK to the FPGA clock using a 3-bits shift register
 reg [2:0] SCLKr; always @(posedge clk) SCLKr <= {SCLKr[1:0],ucSCLK};
@@ -28,18 +28,17 @@ wire SSEL_end = SSELr[2:1] == 2'b01;        // stop on rising edge
 reg [1:0] MOSIr; always @(posedge clk) MOSIr <= {MOSIr[0],ucMOSI};
 wire MOSI_data = MOSIr[1];
 
-reg incoming;
-reg [PEEK_BITS-1:0] outgoing;
+reg [WIDTH-1:0] shifter;
 always @(posedge clk) begin
     if (SSEL_start)
-        outgoing <= data_in;
+        shifter <= data_in;
     if (SSEL_active && SCLK_rising) // rotate left, i.e. MSB out and LSB in
-        outgoing <= {outgoing[PEEK_BITS-2:0],MOSI_data};
+        shifter <= {shifter[WIDTH-2:0],MOSI_data};
     if (SSEL_end)
-        data_out <= outgoing;
+        data_out <= shifter;
 end
 
 // we'll need to tri-state ucMISO if there's more than one slave on the SPI bus
-assign ucMISO = outgoing[PEEK_BITS-1]; // send MSB first
+assign ucMISO = shifter[WIDTH-1]; // send MSB first
 
 endmodule
