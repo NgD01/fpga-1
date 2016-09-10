@@ -45,8 +45,14 @@ assign sdram_data_w = outs[47:32];
 assign led          = outs[31:24];
 assign sdram_addr   = outs[23:0];
 
-SpiPeek U0 (
-    .clk(clk),
+wire clk100;
+pll U1 (
+    .inclk0(clk),
+    .c0(clk100)
+);
+
+SpiPeek U2 (
+    .clk(clk100),
     .ucSCLK(ucSCLK),
     .ucMOSI(ucMOSI),
     .ucMISO(ucMISO),
@@ -55,8 +61,8 @@ SpiPeek U0 (
     .data_out(outs)
 );
 
-SdramCtrl U1 (
-    .clk             (clk),
+SdramCtrl U3 (
+    .clk             (clk100),
     .reset_l         (~reset),
 
     .sdram_req       (sdram_req),
