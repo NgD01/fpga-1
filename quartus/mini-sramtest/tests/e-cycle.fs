@@ -1,45 +1,43 @@
-\ test code for SDRAM via SPI peek, this runs full cycles over all addresses
+\ test BRAM/SRAM via SPI peek, this runs full cycles over all addresses
 
 spi-init
 
   %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
 
-: >f32> ( u -- u )
+: >fpga> ( u -- u )  \ exchange 32 bits with attached FPGA
+  +spi
   dup 24 rshift >spi> 24 lshift swap
   dup 16 rshift >spi> 16 lshift swap
   dup  8 rshift >spi>  8 lshift swap
-                >spi> or or or ;
-
-: >fpga> ( u2 -- u2 )  \ exchange 64 bits with attached FPGA
-  swap +spi >f32> swap >f32> -spi ;
+                >spi> or or or
+  -spi ;
 
 \ verify that data comes back when loopback is set
-depth . $01234567 $89ABCDEF >fpga> swap hex. hex. depth .
-depth . $00FF0000 $12345678 >fpga> swap hex. hex. depth .
+depth . $01234567 >fpga> hex. depth .
+depth . $12345678 >fpga> hex. depth .
 
 31 bit constant SD.REQ
-30 bit constant SD.WRn
+ 8 bit constant SD.WRn  \ will be lshifted 22 more
 
 : sd-cycle ( data addr -- u )
-\ 2over                >fpga> 2drop
-  over SD.REQ or over  >fpga> 2drop
-                       >fpga> drop ;
+  swap  22 lshift or
+  dup SD.REQ or  >fpga> drop
+                 >fpga> ;
 
 : >sd ( data addr -- )  sd-cycle drop ;
-: sd> ( addr -- data )  SD.WRn swap sd-cycle ;
+: sd> ( addr -- data )  SD.WRn swap sd-cycle 22 rshift $FF and ;
 
-$1234 $543210 >sd  $543210 sd> h.4
-$0123 $054321 >sd  $054321 sd> h.4
-           100 ms  $543210 sd> h.4
-           100 ms  $054321 sd> h.4
-
-: sd-timer micros $543210 sd> drop micros swap - . ;  \ about 34 µs @ 9 MHz
+$12 $43210 >sd  $43210 sd> h.2
+$34 $54321 >sd  $54321 sd> h.2
+        100 ms  $43210 sd> h.2
+        100 ms  $54321 sd> h.2
+: sd-timer micros $43210 sd> drop micros swap - . ;  \ about 19 µs @ 9 MHz
 sd-timer
 
-24 bit constant TEST-SIZE  \ 22 = 4Mx16 (64 Mbit), 24 = 16Mx16 (256 Mbit)
+14 bit constant TEST-SIZE  \ 12 = 16 KB, 19 = 512 KB, 21 = 2048 KB
 
-: test-range ( leds -- hi lo )  24 lshift  dup TEST-SIZE or  swap ;
-: test-value ( n -- u )  211 * 8 rshift $FFFF and ;
+: test-range ( leds -- hi lo )  3 and 20 lshift  dup TEST-SIZE or  swap ;
+: test-value ( n -- u )  211 * 8 rshift $FF and ;
 
 : zero-ram ( leds -- )
   test-range do
@@ -64,10 +62,8 @@ sd-timer
 : test
   0  begin
     dup fill-ram    1+
-    100 ms
     dup fill-check  1+
     dup zero-ram    1+
-    1000 ms
     dup zero-check  1+
   key? until  drop ;
 

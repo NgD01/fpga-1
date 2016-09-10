@@ -28,10 +28,10 @@ depth . $12345678 $FF000000 >fpga> swap hex. hex. depth .
 : >sd ( data addr -- )  sd-cycle drop ;
 : sd> ( addr -- data )  SD.WRn swap sd-cycle ;
 
-$1234 $543210 >sd  $543210 sd> hex.
-$0123 $054321 >sd  $054321 sd> hex.
-           100 ms  $543210 sd> hex.
-           100 ms  $054321 sd> hex.
+$1234 $543210 >sd  $543210 sd> h.4
+$0123 $054321 >sd  $054321 sd> h.4
+           100 ms  $543210 sd> h.4
+           100 ms  $054321 sd> h.4
 
 : sd-timer micros $543210 sd> drop micros swap - . ;  \ about 34 µs @ 9 MHz
 sd-timer
