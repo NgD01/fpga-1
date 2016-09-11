@@ -6,7 +6,6 @@ module BramCtrl (
     reset_l,
     //client interface
     sram_req,
-    sram_ack,
     sram_addr,
     sram_rh_wl,
     sram_data_w,
@@ -28,7 +27,6 @@ input clk, reset_l, sram_req;
 input                   sram_rh_wl;
 input  [ADDR_WIDTH-1:0] sram_addr;
 input  [DATA_WIDTH-1:0] sram_data_w;
-output                  sram_ack;
 output                  sram_data_r_en;
 output [DATA_WIDTH-1:0] sram_data_r;
 
@@ -43,7 +41,6 @@ always @(posedge clk) begin
     data_r <= mem[sram_addr[13:0]];
 end
 assign sram_data_r = data_r;
-assign sram_ack = sram_req;
 
 reg valid;
 always @(posedge clk)

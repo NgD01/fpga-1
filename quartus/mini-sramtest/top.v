@@ -22,10 +22,9 @@ wire [7:0]  sram_data_w;
 wire [7:0]  sram_data_r_lock;
 wire [7:0]  sram_data_r;
 wire        sram_data_r_en;
-wire        sram_ack;
 
 wire [31:0] ins = {
-    sram_ack,          // 31
+    1'b0,              // 31
     sram_data_r_en,    // 30
     sram_data_r,       // 29:22
     22'b1
@@ -38,15 +37,15 @@ assign sram_data_w = outs[29:22];
 assign led         = outs[21:14];
 assign sram_addr   = outs[18:0];
 
-wire clk100, reset_l;
+wire c0, reset_l;
 pll U1 (
     .inclk0(clk),
-    .c0(clk100),
+    .c0(c0),
     .locked(reset_l)
 );
 
 SpiPeek U2 (
-    .clk(clk100),
+    .clk(c0),
     .ucSCLK(ucSCLK),
     .ucMOSI(ucMOSI),
     .ucMISO(ucMISO),
@@ -56,12 +55,11 @@ SpiPeek U2 (
 );
 defparam U2.WIDTH = 32;
 
-BramCtrl U3 (
-    .clk            (clk100),
-    .reset_l        (reset_l),
+SramCtrl U3 (
+    .clk            (c0),
+    .reset          (~reset_l),
 
     .sram_req       (sram_req),
-    .sram_ack       (sram_ack),
     .sram_addr      (sram_addr),
     .sram_rh_wl     (sram_rh_wl),
     .sram_data_w    (sram_data_w),
