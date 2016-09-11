@@ -2,7 +2,7 @@
 
 spi-init
 
-\ %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
+  %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
 
 : >fpga> ( u -- u )  \ exchange 32 bits with attached FPGA
   +spi
@@ -32,7 +32,7 @@ $12 $43210 >sd  $43210 sd> h.2
 $34 $54321 >sd  $54321 sd> h.2
         100 ms  $43210 sd> h.2
         100 ms  $54321 sd> h.2
-: sd-timer micros $43210 sd> drop micros swap - . ;  \ about 28 µs @ 9 MHz
+: sd-timer micros $43210 sd> drop micros swap - . ;  \ about 22 µs @ 18 MHz
 sd-timer
 
 19 bit constant TEST-SIZE  \ 14 = 16 KB, 19 = 512 KB, 21 = 2048 KB
