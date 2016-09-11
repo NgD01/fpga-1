@@ -2,7 +2,7 @@
 
 spi-init
 
-  %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
+\ %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
 
 : >fpga> ( u -- u )  \ exchange 32 bits with attached FPGA
   +spi
