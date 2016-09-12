@@ -6,10 +6,10 @@
         3 bit or  \ PTYP = NAND
     FSMC-PCR2 !
                  0
-\    0 24 lshift or  \ MEMHIZ = 2
-     1 16 lshift or  \ MEMHOLD = 3
-      2 8 lshift or  \ MEMWAIT = 4
-\     0 0 lshift or  \ MEMSET = 2
+\    0 24 lshift or  \ MEMHIZ
+     1 16 lshift or  \ MEMHOLD
+      2 8 lshift or  \ MEMWAIT
+\     0 0 lshift or  \ MEMSET
   dup FSMC-PMEM2 !
       FSMC-PATT2 !
 
@@ -50,5 +50,5 @@ $40 wdata 16 + fpga-write  $40 rdata fpga-read  show
 
 : timing ( n -- )  \ perform a timing test, reading 1000 words via the FSMC
   micros swap 0 do NAND h@ drop loop micros swap - . ;
-\ currently returns 279 ns, of which 85 ns are loop overhead, i.e. ≈ 5 Mw/s
+\ currently returns 279 ns, of which 85 ns are loop overhead, i.e. > 5 Mw/s
 1000 timing

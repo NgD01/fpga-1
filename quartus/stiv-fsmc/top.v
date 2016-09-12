@@ -7,9 +7,6 @@ module top (
     output wbCSn
 );
 
-reg [15:0] latch, mem [512];
-reg [8:0] index;
-
 wire select = nce2 == 0;
 
 wire c0, reset_l;
@@ -32,6 +29,8 @@ wire write = nwe_r[2:1] == 2'b10 && select;
 assign leds = index[3:0];
 assign wbCSn = 1'b1;  // keep WinBond flash memory deselected
 
+reg [8:0] index;
+reg [15:0] latch, mem [512];
 always @(posedge c0) begin
     if (write) begin
         if (addr[1] == 1'b1)
