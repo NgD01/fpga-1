@@ -12,20 +12,27 @@ reg [8:0] index;
 
 wire select = nce2 == 0;
 
+wire c0, reset_l;
+pll U1 (
+    .inclk0(clk),
+    .c0(c0),
+    .locked(reset_l)
+);
+
 reg [2:0] noe_r;
-always @(posedge clk)
+always @(posedge c0)
     noe_r <= {noe_r[1:0],noe};
-wire read = noe_r[2:1] == 2'b10 && select;
+wire read = noe_r[2:1] == 2'b01 && select;
 
 reg [2:0] nwe_r;
-always @(posedge clk)
+always @(posedge c0)
     nwe_r <= {nwe_r[1:0],nwe};
 wire write = nwe_r[2:1] == 2'b10 && select;
 
 assign leds = index[3:0];
 assign wbCSn = 1'b1;  // keep WinBond flash memory deselected
 
-always @(posedge clk) begin
+always @(posedge c0) begin
     if (write)
         if (addr[1] == 1'b1)
             index <= data;
@@ -39,6 +46,6 @@ always @(posedge clk) begin
     end
 end
 
-assign data = noe == 0 && select ? latch : 16'hzzzz;
+assign data = noe_r[1] == 0 && select ? latch : 16'hzzzz;
 
 endmodule

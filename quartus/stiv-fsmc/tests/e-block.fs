@@ -7,7 +7,7 @@
     FSMC-PCR2 !
                  0
 \    0 24 lshift or  \ MEMHIZ = 2
-     2 16 lshift or  \ MEMHOLD = 3
+     1 16 lshift or  \ MEMHOLD = 3
       2 8 lshift or  \ MEMWAIT = 4
 \     0 0 lshift or  \ MEMSET = 2
   dup FSMC-PMEM2 !
