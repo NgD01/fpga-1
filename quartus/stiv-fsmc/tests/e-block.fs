@@ -24,7 +24,7 @@
   16 0 do  dup i 2* + h@  NAND h!  loop  drop ;
 
 : fpga-read ( page addr -- )  \ read one 512-byte flash page
-  swap NAND-ADR h!
+  swap NAND-ADR h!  NAND h@ drop
   16 0 do  NAND h@  over i 2* + h!  loop  drop ;
 
 fpga-init
@@ -42,13 +42,13 @@ hex
   1111 h, 2222 h, 3333 h, 4444 h, 5555 h, 6666 h, 7777 h, 8888 h,
 decimal
 
-1 wdata      fpga-write  1 rdata fpga-read  show
-2 wdata 16 + fpga-write  2 rdata fpga-read  show
-                         1 rdata fpga-read  show
-                         2 rdata fpga-read  show
-                         3 rdata fpga-read  show
+$00 wdata      fpga-write  $00 rdata fpga-read  show
+$40 wdata 16 + fpga-write  $40 rdata fpga-read  show
+                           $00 rdata fpga-read  show
+                           $40 rdata fpga-read  show
+                           $80 rdata fpga-read  show
 
 : timing ( n -- )  \ perform a timing test, reading 1000 words via the FSMC
   micros swap 0 do NAND h@ drop loop micros swap - . ;
-\ currently returns 293 ns, of which 85 ns are loop overhead, i.e. ≈ 5 Mw/s
+\ currently returns 279 ns, of which 85 ns are loop overhead, i.e. ≈ 5 Mw/s
 1000 timing

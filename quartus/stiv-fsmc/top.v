@@ -33,13 +33,14 @@ assign leds = index[3:0];
 assign wbCSn = 1'b1;  // keep WinBond flash memory deselected
 
 always @(posedge c0) begin
-    if (write)
+    if (write) begin
         if (addr[1] == 1'b1)
             index <= data;
         else if (addr[0] == 1'b0) begin
             mem[index] <= data;
             index <= index + 9'd1;
         end
+    end
     if (read) begin
         latch <= mem[index];
         index <= index + 9'd1;
