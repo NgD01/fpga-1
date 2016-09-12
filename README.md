@@ -1,5 +1,9 @@
 ### Dabbling in the world of FPGAs
 
+[stiv-fsmc](quartus/stiv-fsmc/) :
+Fast data transfers with an STM32 using its FSMC hardware  
+[mini-sramtest](quartus/mini-sramtest/) :
+This adds a 512Kx8 SRAM, connected via a custom PCB  
 [stiv-sdramtest](quartus/stiv-sdramtest/) :
 Adapted from SDRAM code which came with the Storm IV board  
 [stiv-vgaout](quartus/stiv-vgaout/) :
