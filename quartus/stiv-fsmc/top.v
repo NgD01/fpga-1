@@ -15,7 +15,7 @@ wire select = nce2 == 0;
 reg [2:0] noe_r;
 always @(posedge clk)
     noe_r <= {noe_r[1:0],noe};
-wire read = noe_r[2:1] == 2'b01 && select;
+wire read = noe_r[2:1] == 2'b10 && select;
 
 reg [2:0] nwe_r;
 always @(posedge clk)

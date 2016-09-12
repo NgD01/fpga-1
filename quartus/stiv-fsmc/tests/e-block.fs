@@ -6,10 +6,10 @@
         3 bit or  \ PTYP = NAND
     FSMC-PCR2 !
                  0
-     2 24 lshift or  \ MEMHIZ = 2
+\    0 24 lshift or  \ MEMHIZ = 2
      2 16 lshift or  \ MEMHOLD = 3
       2 8 lshift or  \ MEMWAIT = 4
-      2 0 lshift or  \ MEMSET = 2
+\     0 0 lshift or  \ MEMSET = 2
   dup FSMC-PMEM2 !
       FSMC-PATT2 !
 
@@ -20,11 +20,11 @@
   nand-pins fpga-fsmc  $00 NAND-CMD c!  $00 NAND-ADR c!  NAND h@ drop ;
 
 : fpga-write ( page addr -- )  \ write one 512-byte flash page
-  $00 NAND-CMD h!  swap NAND-ADR h!
+  swap NAND-ADR h!
   16 0 do  dup i 2* + h@  NAND h!  loop  drop ;
 
 : fpga-read ( page addr -- )  \ read one 512-byte flash page
-  $00 NAND-CMD h!  swap NAND-ADR h!
+  swap NAND-ADR h!
   16 0 do  NAND h@  over i 2* + h!  loop  drop ;
 
 fpga-init
@@ -33,8 +33,7 @@ fpga-init
 
 : show
   cr  8  0 do  rdata i 2* + space h@ h.4  loop
-  cr 16  8 do  rdata i 2* + space h@ h.4  loop
-  cr 24 16 do  rdata i 2* + space h@ h.4  loop ;
+  cr 17  8 do  rdata i 2* + space h@ h.4  loop ;
 
 create wdata
 hex
@@ -47,3 +46,9 @@ decimal
 2 wdata 16 + fpga-write  2 rdata fpga-read  show
                          1 rdata fpga-read  show
                          2 rdata fpga-read  show
+                         3 rdata fpga-read  show
+
+: timing ( n -- )  \ perform a timing test, reading 1000 words via the FSMC
+  micros swap 0 do NAND h@ drop loop micros swap - . ;
+\ currently returns 293 ns, of which 85 ns are loop overhead, i.e. ≈ 5 Mw/s
+1000 timing
