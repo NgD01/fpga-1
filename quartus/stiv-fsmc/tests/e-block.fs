@@ -2,13 +2,15 @@
 
 : fpga-fsmc ( -- )
               0
+   1 4 lshift or  \ PWID = 16 bit
         3 bit or  \ PTYP = NAND
     FSMC-PCR2 !
                  0
      1 24 lshift or  \ MEMHIZ = 2
-     2 16 lshift or  \ MEMHOLD = 3
-      3 8 lshift or  \ MEMWAIT = 4
+     1 16 lshift or  \ MEMHOLD = 3
+      1 8 lshift or  \ MEMWAIT = 4
       1 0 lshift or  \ MEMSET = 2
+  drop $FCFCFCFC
   dup FSMC-PMEM2 !
       FSMC-PATT2 !
 
@@ -16,13 +18,15 @@
 ;
 
 : fpga-init ( -- )  \ init NAND flash access
-  nand-pins fpga-fsmc  $00 NAND-CMD c!  $00 NAND-ADR c!  NAND c@ drop ;
+  nand-pins fpga-fsmc  $00 NAND-CMD c!  $00 NAND-ADR c!  NAND h@ drop ;
 
 : fpga-write ( page addr -- )  \ write one 512-byte flash page
-  swap NAND-ADR h!  512 0 do  dup i + c@  NAND c!  loop  drop ;
+  $00 NAND-CMD c!  swap NAND-ADR c!
+  10 0 do  dup i 2* + h@  NAND h!  loop  drop ;
 
 : fpga-read ( page addr -- )  \ read one 512-byte flash page
-  swap NAND-ADR h!  512 0 do  NAND c@  over i + c!  loop  drop ;
+  $00 NAND-CMD c!  swap NAND-ADR c!
+  10 0 do  NAND h@  over i 2* + h!  loop  drop ;
 
 fpga-init
 
