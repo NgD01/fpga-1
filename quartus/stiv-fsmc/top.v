@@ -1,7 +1,6 @@
 module top (
     input clk,
-    input noe, nwe, nce2, nce3,
-    input [1:0] addr,
+    input noe, nwe, nce2, nce3, ale, cle,
     output [3:0] leds,
     inout [15:0] data,
     output wbCSn
@@ -33,9 +32,9 @@ reg [8:0] index;
 reg [15:0] latch, mem [512];
 always @(posedge c0) begin
     if (write) begin
-        if (addr[1] == 1'b1)
+        if (ale == 1'b1)
             index <= data[8:0];
-        else if (addr[0] == 1'b0) begin
+        else if (cle == 1'b0) begin
             mem[index] <= data;
             index <= index + 9'd1;
         end
