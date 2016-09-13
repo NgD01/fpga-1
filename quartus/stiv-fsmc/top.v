@@ -34,7 +34,7 @@ reg [15:0] latch, mem [512];
 always @(posedge c0) begin
     if (write) begin
         if (addr[1] == 1'b1)
-            index <= data;
+            index <= data[8:0];
         else if (addr[0] == 1'b0) begin
             mem[index] <= data;
             index <= index + 9'd1;
