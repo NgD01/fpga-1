@@ -6,10 +6,10 @@
         3 bit or  \ PTYP = NAND
     FSMC-PCR2 !
                  0
-\    0 24 lshift or  \ MEMHIZ
-     1 16 lshift or  \ MEMHOLD
-      2 8 lshift or  \ MEMWAIT
-\     0 0 lshift or  \ MEMSET
+     3 24 lshift or  \ MEMHIZ
+     4 16 lshift or  \ MEMHOLD
+      5 8 lshift or  \ MEMWAIT
+      3 0 lshift or  \ MEMSET
   dup FSMC-PMEM2 !
       FSMC-PATT2 !
 
@@ -17,17 +17,15 @@
 ;
 
 : fpga-init ( -- )  \ init NAND flash access
-  nand-pins fpga-fsmc  $00 NAND-CMD c!  $00 NAND-ADR c!  NAND h@ drop ;
+  nand-pins fpga-fsmc  $00 NAND-CMD c!  $00 NAND-ADR c! ;
 
 : fpga-write ( page addr -- )  \ write one 512-byte flash page
   swap NAND-ADR h!
   8 0 do  dup i cells + @  NAND !  loop  drop ;
 
 : fpga-read ( page addr -- )  \ read one 512-byte flash page
-  swap NAND-ADR h!  NAND h@ drop
+  swap NAND-ADR h!
   8 0 do  NAND @  over i cells + !  loop  drop ;
-
-fpga-init
 
 512 buffer: rdata
 
@@ -42,11 +40,14 @@ hex
   1111 h, 2222 h, 3333 h, 4444 h, 5555 h, 6666 h, 7777 h, 8888 h,
 decimal
 
-$00 wdata      fpga-write  $00 rdata fpga-read  show
-$40 wdata 16 + fpga-write  $40 rdata fpga-read  show
-                           $00 rdata fpga-read  show
-                           $40 rdata fpga-read  show
-                           $80 rdata fpga-read  show
+: test
+  fpga-init
+  $00 wdata      fpga-write  $00 rdata fpga-read  show
+  $40 wdata 16 + fpga-write  $40 rdata fpga-read  show
+                            $00 rdata fpga-read  show
+                            $40 rdata fpga-read  show
+                            $80 rdata fpga-read  show
+; test
 
 : timing ( n -- )  \ perform a timing test, reading 1000 words via the FSMC
   micros swap 0 do NAND @ drop loop micros swap - . ;

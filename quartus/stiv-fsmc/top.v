@@ -18,12 +18,12 @@ pll U1 (
 reg [2:0] noe_r;
 always @(posedge c0)
     noe_r <= {noe_r[1:0],noe};
-wire read = noe_r[2:1] == 2'b01 && select;
+wire read = noe_r[2:1] == 2'b10 && select;
 
 reg [2:0] nwe_r;
 always @(posedge c0)
     nwe_r <= {nwe_r[1:0],nwe};
-wire write = nwe_r[2:1] == 2'b10 && select;
+wire write = nwe_r[2:1] == 2'b01 && select;
 
 assign leds = index[3:0];
 assign wbCSn = 1'b1;  // keep WinBond flash memory deselected
