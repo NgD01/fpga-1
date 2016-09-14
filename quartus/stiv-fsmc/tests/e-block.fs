@@ -49,7 +49,7 @@ decimal
                              $80 rdata fpga-read  show
 ; test
 
-: timing ( n -- )  \ perform a timing test, reading 1000 words via the FSMC
+: timing ( n -- )  \ perform a timing test, reading 1024 words via the FSMC
   micros swap 0 do NAND @ drop loop micros swap - . ;
-\ currently returns 236 ns, of which 43 ns are loop overhead, i.e. > 5 Mw/s
+\ currently returns 236 us, of which 43 us are loop overhead, i.e. > 5 Mw/s
 512 timing
