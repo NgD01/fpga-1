@@ -16,24 +16,24 @@ spi-init
 depth . $01234567 >fpga> hex. depth .
 depth . $12345678 >fpga> hex. depth .
 
-31 bit constant SD.REQ
- 8 bit constant SD.WRn  \ will be lshifted 22 more
+31 bit constant SR.REQ
+ 8 bit constant SR.WRn  \ will be lshifted 22 more
 
-: sd-cycle ( data addr -- u )
+: sr-cycle ( data addr -- u )
   swap  22 lshift or
   dup            >fpga> drop
-  dup SD.REQ or  >fpga> drop
+  dup SR.REQ or  >fpga> drop
                  >fpga> ;
 
-: >sd ( data addr -- )  sd-cycle drop ;
-: sd> ( addr -- data )  SD.WRn swap sd-cycle 22 rshift $FF and ;
+: >sr ( data addr -- )  sr-cycle drop ;
+: sr> ( addr -- data )  SR.WRn swap sr-cycle 22 rshift $FF and ;
 
-$12 $43210 >sd  $43210 sd> h.2
-$34 $54321 >sd  $54321 sd> h.2
-        100 ms  $43210 sd> h.2
-        100 ms  $54321 sd> h.2
-: sd-timer micros $43210 sd> drop micros swap - . ;  \ about 22 µs @ 18 MHz
-sd-timer
+$12 $43210 >sr  $43210 sr> h.2
+$34 $54321 >sr  $54321 sr> h.2
+        100 ms  $43210 sr> h.2
+        100 ms  $54321 sr> h.2
+: sr-timer micros $43210 sr> drop micros swap - . ;  \ about 22 µs @ 18 MHz
+sr-timer
 
 19 bit constant TEST-SIZE  \ 14 = 16 KB, 19 = 512 KB, 21 = 2048 KB
 
@@ -42,22 +42,22 @@ sd-timer
 
 : zero-ram ( leds -- )
   test-range do
-    0 i >sd
+    0 i >sr
   loop ;
 
 : fill-ram ( leds -- )
   test-range do
-    i test-value  i >sd
+    i test-value  i >sr
   loop ;
 
 : zero-check ( leds -- )
   test-range do
-    i sd>  $FFFF and  if cr i hex. i sd> hex. ." ?" then
+    i sr>  $FFFF and  if cr i hex. i sr> hex. ." ?" then
   loop ;
 
 : fill-check ( leds -- )
   test-range do
-    i sd>  i test-value - $FFFF and  if cr i hex. i sd> hex. ." ?" then
+    i sr>  i test-value - $FFFF and  if cr i hex. i sr> hex. ." ?" then
   loop ;
 
 : test

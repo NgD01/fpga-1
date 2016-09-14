@@ -16,20 +16,20 @@ spi-init
 depth . $01234567 >fpga> hex. depth .
 depth . $12345678 >fpga> hex. depth .
 
-31 bit constant SD.REQ
- 8 bit constant SD.WRn  \ will be lshifted 22 more
+31 bit constant SR.REQ
+ 8 bit constant SR.WRn  \ will be lshifted 22 more
 
-: sd-cycle ( data addr -- u )
+: sr-cycle ( data addr -- u )
   swap  22 lshift or
-  dup SD.REQ or  >fpga> drop
+  dup SR.REQ or  >fpga> drop
                  >fpga> ;
 
-: >sd ( data addr -- )  sd-cycle drop ;
-: sd> ( addr -- data )  SD.WRn swap sd-cycle 22 rshift $FF and ;
+: >sr ( data addr -- )  sr-cycle drop ;
+: sr> ( addr -- data )  SR.WRn swap sr-cycle 22 rshift $FF and ;
 
-$12 $43210 >sd  $43210 sd> h.2
-$34 $54321 >sd  $54321 sd> h.2
-        100 ms  $43210 sd> h.2
-        100 ms  $54321 sd> h.2
-: sd-timer micros $43210 sd> drop micros swap - . ;  \ about 19 µs @ 9 MHz
-sd-timer
+$12 $43210 >sr  $43210 sr> h.2
+$34 $54321 >sr  $54321 sr> h.2
+        100 ms  $43210 sr> h.2
+        100 ms  $54321 sr> h.2
+: sr-timer micros $43210 sr> drop micros swap - . ;  \ about 19 µs @ 9 MHz
+sr-timer
