@@ -51,15 +51,18 @@ assign taddr = xPos;
 // delay by one cycle to perform the video ram fetch
 reg hSync_d, vSync_d;
 reg [2:0] rgb_d;
+reg [8:0] tvalue_d; // used to draw lines between adjacent pixels
 always @(posedge clk) begin
     if (pixClk) begin
         hSync_d <= hSync;
         vSync_d <= vSync;
+        tvalue_d <= tvalue;
 
         if (active)
             if (vBorder || hBorder)
                 rgb_d <= 3'b001; // blue
-            else if (tvalue == yPos)
+            else if ((tvalue <= yPos && yPos <= tvalue_d) ||
+                     (tvalue_d <= yPos && yPos <= tvalue))
                 rgb_d <= 3'b110; // yellow
             else
                 rgb_d <= 3'b000; // black
