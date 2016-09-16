@@ -1,8 +1,12 @@
 module top (
     input clk,
+    // fsmc interface
     input noe, nwe, nce2, nce3, ale, cle,
     output [3:0] leds,
     inout [15:0] data,
+    // vga video output
+    output red, green, blue, hsync, vsync,
+    // flash memory enable
     output wbCSn
 );
 
@@ -28,22 +32,35 @@ wire write = nwe_r[2:1] == 2'b01 && select;  // rising edge
 assign leds = index[3:0];
 assign wbCSn = 1'b1;  // keep WinBond flash memory deselected
 
-reg [8:0] index;
-reg [15:0] latch, mem [512];
+reg [9:0] index;
+reg [15:0] latch, tlatch, mem [1024];
 always @(posedge c0) begin
     if (write) begin
         if (ale == 1'b1)
-            index <= data[8:0];
+            index <= data[9:0];
         else if (cle == 1'b0) begin
             mem[index] <= data;
-            index <= index + 9'd1;
+            index <= index + 10'd1;
         end
     end else if (read) begin
         latch <= mem[index];
-        index <= index + 9'd1;
+        index <= index + 10'd1;
     end
+    tlatch <= mem[taddr];
 end
 
 assign data = noe == 0 && select ? latch : 16'hzzzz;
+
+wire [9:0] taddr;
+vga U2 (
+    .clk(clk),
+    .red(red),
+    .green(green),
+    .blue(blue),
+    .hsync(hsync),
+    .vsync(vsync),
+    .taddr(taddr),
+    .tvalue(~tlatch[11:3]) // scanline counter runs from top to bottom
+);
 
 endmodule

@@ -18,25 +18,26 @@ reset
   2 bit FSMC-PCR2 bis!  \ PBKEN = enabled
 ;
 
+   2048 constant BUF-SIZE
+BUF-SIZE buffer: rdata
+
 : fpga-init ( -- )  \ init NAND flash access
   nand-pins fpga-fsmc  $00 NAND-CMD c! ;
 
-: fpga-write ( page addr -- )  \ write one 1024-byte flash page
+: fpga-write ( page addr -- )  \ write 2048 bytes to flash
   swap NAND-ADR h!
-  256 0 do  dup i cells + @  NAND !  loop  drop ;
+  BUF-SIZE 4 / 0 do  dup i cells + @  NAND !  loop  drop ;
 
-: fpga-read ( page addr -- )  \ read one 1024-byte flash page
+: fpga-read ( page addr -- )  \ read 2048 bytes from flash
   swap NAND-ADR h!
-  256 0 do  NAND @  over i cells + !  loop  drop ;
-
-1024 buffer: rdata
+  BUF-SIZE 4 / 0 do  NAND @  over i cells + !  loop  drop ;
 
 : show
   cr  8  0 do  rdata i 2* + space h@ h.4  loop
   cr 17  8 do  rdata i 2* + space h@ h.4  loop ;
 
-: adc-to-fpga ( -- )  \ transfer 512 values from ADC to FPGA
-  $00 NAND-ADR h!  512 0 do  PC3 adc NAND h!  loop ;
+: adc-to-fpga ( -- )  \ transfer 1024 values from ADC to FPGA
+  $00 NAND-ADR h!  1024 0 do  PC3 adc NAND h!  loop ;
 
 \ pins used:
 \   C2 A0 A2 A4 A6
@@ -55,8 +56,10 @@ reset
   fpga-init
   +adc
   begin
+\   micros
     adc-to-fpga
-    $00 rdata fpga-read  show
+    $00 rdata fpga-read  \ show
+\   micros swap - . cr
     1000 ms
   key? until
 ;
