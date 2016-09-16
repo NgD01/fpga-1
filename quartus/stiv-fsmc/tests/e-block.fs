@@ -21,11 +21,11 @@ reset
 : fpga-init ( -- )  \ init NAND flash access
   nand-pins fpga-fsmc  $00 NAND-CMD c! ;
 
-: fpga-write ( page addr -- )  \ write one 512-byte flash page
+: fpga-write ( page addr -- )  \ write 32 bytes to emulated flash
   swap NAND-ADR h!
   8 0 do  dup i cells + @  NAND !  loop  drop ;
 
-: fpga-read ( page addr -- )  \ read one 512-byte flash page
+: fpga-read ( page addr -- )  \ read 32 bytes from emulated flash
   swap NAND-ADR h!
   8 0 do  NAND @  over i cells + !  loop  drop ;
 
@@ -51,7 +51,7 @@ decimal
                              $80 rdata fpga-read  show
 ; test
 
-: timing ( n -- )  \ perform a timing test, reading 1024 words via the FSMC
+: timing ( n -- )  \ perform a timing test, reading N words via the FSMC
   micros swap 0 do NAND @ drop loop micros swap - . ;
-\ currently returns 236 us, of which 43 us are loop overhead, i.e. > 5 Mw/s
+\ currently returns 236 us, of which 43 us are loop overhead, i.e. > 10 MB/s
 512 timing
