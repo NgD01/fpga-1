@@ -1,5 +1,6 @@
 \ test BRAM/SRAM via SPI peek, this runs full cycles over all addresses
 
+reset
 spi-init
 
   %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
@@ -52,12 +53,12 @@ sr-timer
 
 : zero-check ( leds -- )
   test-range do
-    i sr>  $FFFF and  if cr i hex. i sr> hex. ." ?" then
+    i sr>  if cr i hex. i sr> h.2 ." ?" then
   loop ;
 
 : fill-check ( leds -- )
   test-range do
-    i sr>  i test-value - $FFFF and  if cr i hex. i sr> hex. ." ?" then
+    i sr>  i test-value xor  if cr i hex. i sr> h.2 ." ?" then
   loop ;
 
 : test

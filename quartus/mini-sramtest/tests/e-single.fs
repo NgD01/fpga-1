@@ -1,5 +1,6 @@
 \ test code for BRAM/SRAM via the SPI peek device
 
+reset
 spi-init
 
 \ %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)

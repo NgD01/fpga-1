@@ -1,5 +1,7 @@
 \ test code for FSMC bus interface to FPGA
 
+reset
+
 : fpga-fsmc ( -- )
               0
    1 4 lshift or  \ PWID = 16 bit

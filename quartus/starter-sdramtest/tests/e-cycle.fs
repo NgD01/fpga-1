@@ -1,5 +1,6 @@
 \ test code for SDRAM via SPI peek, this runs full cycles over all addresses
 
+reset
 spi-init
 
   %0000000001001100 SPI1-CR1 !  \ clk/4, i.e. 18 MHz, master (max supported)
