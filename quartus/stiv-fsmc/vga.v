@@ -45,22 +45,31 @@ wire vBars = xPos==XMIN || xPos==XMAX;
 wire hBars = yPos==YMIN || yPos==YMAX;
 wire vBorder = vBars && YMIN <= yPos && yPos <= YMAX;
 wire hBorder = hBars && XMIN <= xPos && xPos <= XMAX;
-wire tMatch = tvalue == yPos;
+
+assign taddr = xPos;
 
 // delay by one cycle to perform the video ram fetch
-reg active_d, vout_d, hSync_d, vSync_d;
+reg hSync_d, vSync_d;
+reg [2:0] rgb_d;
 always @(posedge clk) begin
     if (pixClk) begin
-        active_d = active;
-        vout_d <= vBorder || hBorder || tMatch;
         hSync_d <= hSync;
         vSync_d <= vSync;
+
+        if (active)
+            if (vBorder || hBorder)
+                rgb_d <= 3'b001; // blue
+            else if (tvalue == yPos)
+                rgb_d <= 3'b110; // yellow
+            else
+                rgb_d <= 3'b000; // black
+        else
+            rgb_d <= 3'b000; // black
     end
 end
 
-assign {red,green,blue} = {3{active_d && vout_d}};
+assign {red,green,blue} = rgb_d;
 assign hsync = hSync_d;
 assign vsync = vSync_d;
-assign taddr = xPos;
 
 endmodule
