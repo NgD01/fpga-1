@@ -51,7 +51,7 @@ BUF-SIZE buffer: rdata
   OMODE-PP PA2 io-mode!  1 PA2 io!
 ;
 
-: test
+: test1
   init-timer
   fpga-init
   +adc
@@ -63,4 +63,40 @@ BUF-SIZE buffer: rdata
     1000 ms
   key? until
 ;
-\ test
+\ test1
+
+: adc1-dma2 ( addr count pin rate -- )  \ continuous DMA-based conversion
+  3 +timer        \ set the ADC trigger rate using timer 3
+  +adc  adc drop  \ perform one conversion to set up the ADC
+  2dup 0 fill     \ clear sampling buffer
+
+    0 bit RCC-AHBENR bis!  \ DMA1EN clock enable
+      2/ DMA1-CNDTR1 !     \ 2-byte entries
+          DMA1-CMAR1 !     \ write to address passed as input
+  ADC1-DR DMA1-CPAR1 !     \ read from ADC1
+
+                0   \ register settings for CCR1 of DMA1:
+  %01 10 lshift or  \ MSIZE = 16-bits
+   %01 8 lshift or  \ PSIZE = 16 bits
+          7 bit or  \ MINC
+          5 bit or  \ CIRC
+                    \ DIR = from peripheral to mem
+          0 bit or  \ EN
+      DMA1-CCR1 !
+
+                 0   \ ADC1 triggers on timer 3 and feeds DMA1:
+          23 bit or  \ TSVREFE
+          20 bit or  \ EXTTRIG
+  %100 17 lshift or  \ timer 3 TRGO event
+           8 bit or  \ DMA
+           0 bit or  \ ADON
+        ADC1-CR2 ! ;
+
+: test2
+  init-timer
+  fpga-init
+  NAND 1024 PC3 2 adc1-dma
+  key drop
+  0 bit DMA1-CCR1 bic!
+;
+\ test2
