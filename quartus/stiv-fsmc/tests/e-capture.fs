@@ -43,11 +43,11 @@ BUF-SIZE buffer: rdata
 \   C2 A0 A2 A4 A6
 \   C1 C3 A1 A3 A5
 \
-\ C3 = 1kΩ to A0, 1kΩ to A1, 1kΩ to A2, where: A0 = PWM, A1 = "0", A2 = "1"
+\ C3 = 1kΩ to A0, 1kΩ to A1, 1kΩ to A2, where: A0 = "0", A1 = PWM, A2 = "1"
 
 : init-timer
-  7200 PA0 +pwm  9000 PA0 pwm  \ set up timer 2 for 7200 Hz w/ 10% duty cycle
-  OMODE-PP PA1 io-mode!  0 PA1 io!
+  7200 PA1 +pwm  9000 PA1 pwm  \ set up timer 2 for 7200 Hz w/ 10% duty cycle
+  OMODE-PP PA0 io-mode!  0 PA0 io!
   OMODE-PP PA2 io-mode!  1 PA2 io!
 ;
 
@@ -68,7 +68,8 @@ BUF-SIZE buffer: rdata
 : test2
   init-timer
   fpga-init
-  NAND 1024 PC3 2 adc1-dma
+  NAND 1024 PC2 2 adc1-dma
+  5000 PA1 pwm  \ 50% PWM
   key drop
   0 bit DMA1-CCR1 bic!
 ;
